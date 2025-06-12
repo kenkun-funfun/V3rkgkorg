@@ -2,6 +2,8 @@
 import { createSignal, For, Show } from 'solid-js';
 import { Trash2, UploadCloud } from 'lucide-solid';
 
+const [isDragOver, setIsDragOver] = createSignal(false);
+
 type Props = {
   categoryName: string;
   images: { url?: string; base64?: string; hash: string }[];
@@ -43,16 +45,33 @@ export default function ImageManager(props: Props) {
     <div class="space-y-4">
       {/* ドロップゾーン */}
       <div
-        class="rounded-lg border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-zinc-900 transition-all"
+        class={`rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-all
+    ${isDragOver()
+            ? 'border-blue-500 bg-blue-100 dark:bg-zinc-800'
+            : 'border-gray-400 bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-zinc-900'}
+  `}
         onClick={handleBrowse}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
         onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+          handleDrop(e);
+        }}
       >
         <div class="flex flex-col items-center space-y-2 text-sm text-gray-600 dark:text-gray-300">
           <UploadCloud size={32} />
           <span>ここに画像をドロップ、またはクリックして追加</span>
         </div>
       </div>
+
 
       {/* 表示数切替 */}
       <div class="flex justify-end items-center gap-2 text-sm text-gray-600 dark:text-gray-300">

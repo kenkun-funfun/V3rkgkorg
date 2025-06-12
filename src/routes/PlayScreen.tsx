@@ -68,9 +68,12 @@ export default function PlayScreen() {
 
   const startPlayback = (selected: string[]) => {
     const shuffle = localStorage.getItem('shuffle') === 'true';
-    const allImages = selected.flatMap(
-      (name) => categoryData[name]?.images.map((img) => img.base64 || img.url) || []
-    );
+    const allImages = selected.flatMap((name) => {
+      const entry = categoryData[name];
+      if (!entry || !entry.images) return [];
+      return entry.images.map((img) => img.base64 || img.url);
+    });
+
     const shuffled = shuffle ? [...allImages].sort(() => Math.random() - 0.5) : allImages;
     const max = parseInt(localStorage.getItem('maxPlays') || '100');
     const finalList = shuffled.slice(0, max);

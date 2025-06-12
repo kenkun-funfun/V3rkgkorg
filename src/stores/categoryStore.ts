@@ -21,11 +21,13 @@ export function normalizeRawData(raw: any): CategoryData {
   if (raw.version === 'v1' && typeof raw.data === 'object') {
     const result: CategoryData = {};
     for (const [category, value] of Object.entries(raw.data)) {
-      result[category] = value.images.map((img: any) => ({
-        base64: img.base64,
-        url: img.url,
-        hash: img.hash || (img.url ? extractHash(img.url) : ''),
-      }));
+      result[category] = {
+        images: value.images.map((img: any) => ({
+          base64: img.base64,
+          url: img.url,
+          hash: img.hash || (img.url ? extractHash(img.url) : ''),
+        })),
+      };
     }
     return result;
   }
@@ -33,19 +35,22 @@ export function normalizeRawData(raw: any): CategoryData {
   if (typeof raw === 'object' && Object.values(raw).every(v => Array.isArray(v))) {
     const result: CategoryData = {};
     for (const [category, urls] of Object.entries(raw)) {
-      result[category] = (urls as string[]).map((url) => {
-        if (typeof url !== 'string') return { url: '', hash: '' };
-        return {
-          url,
-          hash: extractHash(url),
-        };
-      });
+      result[category] = {
+        images: (urls as string[]).map((url) => {
+          if (typeof url !== 'string') return { url: '', hash: '' };
+          return {
+            url,
+            hash: extractHash(url),
+          };
+        }),
+      };
     }
     return result;
   }
 
   throw new Error("不明なJSON形式");
 }
+
 
 
 let categoryDataCache: CategoryData | null = null;
@@ -80,7 +85,7 @@ function createCategoryStore() {
 
   const addCategory = (name: string) => {
     if (!name.trim() || categoryData[name]) return false;
-    setCategoryData(name, []);
+    setCategoryData(name, { images: [] }); // ← 型2対応
     return true;
   };
 
@@ -109,14 +114,18 @@ function createCategoryStore() {
 
   const addImage = (category: string, image: ImageItem) => {
     if (!categoryData[category]) return;
-    setCategoryData(category, [...categoryData[category], image]);
+    const prev = categoryData[category].images || [];
+    setCategoryData(category, {
+      images: [...prev, image],
+    });
   };
 
   const removeImage = (category: string, index: number) => {
     if (!categoryData[category]) return;
-    const updated = [...categoryData[category]];
-    updated.splice(index, 1);
-    setCategoryData(category, updated);
+    const prev = categoryData[category].images || [];
+    setCategoryData(category, {
+      images: [...prev.slice(0, index), ...prev.slice(index + 1)],
+    });
   };
 
   return {
