@@ -17,6 +17,7 @@ import { categoryData, setCategoryData, addImage, removeImage } from '@/stores/c
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils'; // ← パスを合わせて
 
 
+
 export default function PlayScreen() {
   const [viewMode, setViewMode] = createSignal<'play' | 'manage'>('play');
 
@@ -34,6 +35,7 @@ export default function PlayScreen() {
   const [showDeletePanel, setShowDeletePanel] = createSignal(false);
   const [showSaveModal, setShowSaveModal] = createSignal(false);  // ✅ 追加
   const [showLoadModal, setShowLoadModal] = createSignal(false);  // ✅ 追加
+  const currentImage = () => playList()[imageIndex()];
 
   let timer: NodeJS.Timeout | null = null;
   let lastActionTime = 0;
@@ -163,6 +165,33 @@ export default function PlayScreen() {
     });
   };
 
+  const handleDeleteCurrentImage = () => {
+    const current = currentImage();
+    if (!current) return;
+
+    // categoryData から画像を削除
+    for (const [cat, entry] of Object.entries(categoryData)) {
+      const idx = entry.images.findIndex((img) => (img.base64 || img.url) === current);
+      if (idx !== -1) {
+        removeImage(cat, idx);
+        break;
+      }
+    }
+
+    // playList からも削除
+    const updated = [...playList()];
+    updated.splice(imageIndex(), 1);
+    setPlayList(updated);
+
+    // index調整
+    if (imageIndex() >= updated.length) {
+      setImageIndex(Math.max(0, updated.length - 1));
+    }
+
+    setShowDeletePanel(false);
+    addToast('画像を削除しました', 'success');
+  };
+
   onMount(() => {
     const keyHandler = (e: KeyboardEvent) => {
       const enabled = localStorage.getItem('keyboardEnabled') === 'true';
@@ -257,19 +286,10 @@ export default function PlayScreen() {
             <Show when={showDeletePanel()}>
               <DeletePanel
                 onCancel={() => setShowDeletePanel(false)}
-                onConfirm={() => {
-                  const updated = [...playList()];
-                  updated.splice(imageIndex(), 1);
-                  setPlayList(updated);
-                  if (imageIndex() >= updated.length) {
-                    handleReset();
-                  } else {
-                    setImageIndex(Math.min(imageIndex(), updated.length - 1));
-                  }
-                  setShowDeletePanel(false);
-                }}
+                onConfirm={handleDeleteCurrentImage} // ← さっき提示したやつ
               />
             </Show>
+
           </main>
 
           <Footer
@@ -300,20 +320,6 @@ export default function PlayScreen() {
               ← 再生画面に戻る
             </button>
             <h2 class="text-base font-semibold">カテゴリ管理</h2>
-            <div class="flex gap-2">
-              <button
-                class="px-2 py-1 text-sm rounded border border-white hover:bg-white hover:text-black transition"
-                onClick={() => setShowLoadModal(true)}
-              >
-                📂 読み込み
-              </button>
-              <button
-                class="px-2 py-1 text-sm rounded border border-white hover:bg-white hover:text-black transition"
-                onClick={() => setShowSaveModal(true)}
-              >
-                💾 保存
-              </button>
-            </div>
             <div class="w-[64px]" />
           </div>
 
@@ -323,6 +329,8 @@ export default function PlayScreen() {
               <CategoryList
                 selected={selectedCategories()[0] || null}
                 onSelect={(name) => setSelectedCategories([name])}
+                onSave={() => setShowSaveModal(true)}
+                onLoad={() => setShowLoadModal(true)}
               />
             </div>
             <div class="flex-1 h-[55vh] md:h-auto overflow-y-auto p-4">

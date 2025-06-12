@@ -73,17 +73,22 @@ export default function Footer(props: Props) {
         </div>
       </Show>
 
-      {/* START_SCREEN → カテゴリ管理遷移ボタン */}
       <Show when={props.mode === MODE.START_SCREEN}>
         <div class="flex justify-center">
-          <button
-            class="text-sm underline"
-            onClick={() => (window.location.href = "/manage")}
+          <a
+            href="https://x.com/rkgk_org"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1 text-sm underline text-zinc-400 hover:text-white transition"
           >
-            カテゴリ管理へ
-          </button>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M14.305 10.58 22.094 2h-2.003l-6.66 7.579L8.308 2H2l8.135 11.567L2 22h2.003l7.104-8.088L15.691 22H22l-7.695-11.42zm-2.51 2.863-.823-1.155L4.59 3.39h2.987l5.34 7.499.823 1.155 6.743 9.457h-2.987l-5.7-8.058z" />
+            </svg>
+            @rkgk_org
+          </a>
         </div>
       </Show>
+
 
     </div>
   );

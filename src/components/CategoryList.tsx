@@ -8,11 +8,13 @@ import {
   renameCategory,
   addCategory,
 } from '@/stores/categoryStore';
-import { Pencil, Trash2, Pin, Plus } from 'lucide-solid';
+import { Pencil, Trash2, Pin, Plus, UploadCloud, DownloadCloud } from 'lucide-solid';
 
 type Props = {
   selected: string | null;
   onSelect: (name: string) => void;
+  onSave: () => void;
+  onLoad: () => void;
 };
 
 export default function CategoryList(props: Props) {
@@ -49,6 +51,22 @@ export default function CategoryList(props: Props) {
 
   return (
     <div class="space-y-2">
+      <div class="flex justify-end gap-2 mb-1">
+        <button
+          onClick={() => props.onLoad()}
+          class="p-2 rounded bg-zinc-700 hover:bg-zinc-600 text-white"
+          title="JSON読み込み"
+        >
+          <UploadCloud size={18} />
+        </button>
+        <button
+          onClick={() => props.onSave()}
+          class="p-2 rounded bg-zinc-700 hover:bg-zinc-600 text-white"
+          title="JSON保存"
+        >
+          <DownloadCloud size={18} />
+        </button>
+      </div>
       {/* 🔍 検索＋追加 */}
       <div class="flex gap-2 mb-2">
         <input
@@ -76,11 +94,10 @@ export default function CategoryList(props: Props) {
       <For each={allCategories()}>
         {(name) => (
           <div
-            class={`flex items-center justify-between px-3 py-2 rounded cursor-pointer transition-all duration-150 border-2 ${
-              props.selected === name
+            class={`flex items-center justify-between px-3 py-2 rounded cursor-pointer transition-all duration-150 border-2 ${props.selected === name
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900'
                 : 'border-transparent hover:border-zinc-400'
-            }`}
+              }`}
             onClick={() => props.onSelect(name)}
           >
             {editing() === name ? (
