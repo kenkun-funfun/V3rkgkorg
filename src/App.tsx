@@ -5,9 +5,6 @@ import PlayScreen from './routes/PlayScreen';
 import Toast from './components/Toast';
 
 export default function App() {
-
-
-  
   return (
     <>
       <Router>

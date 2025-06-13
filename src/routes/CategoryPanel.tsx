@@ -100,7 +100,7 @@ export default function CategoryPanel(props: Props) {
         {/* 閉じるボタン */}
         <div class="border-t border-zinc-700 p-4">
           <button
-            class="w-full py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded"
+            class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
             onClick={props.onClose}
           >
             閉じる

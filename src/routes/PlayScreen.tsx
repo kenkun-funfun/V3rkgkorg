@@ -234,15 +234,14 @@ export default function PlayScreen() {
       class="w-screen overflow-hidden"
       style={{ height: '100dvh' }}
     >      <Show when={viewMode() === 'play'}>
-        <div class="h-full w-full flex flex-col overflow-hidden bg-black text-white relative">
-          <Header
-            mode={mode()}
-            timeLeft={timeLeft()}
-            onOpenCategoryManager={() => setViewMode('manage')}
-            onReset={handleReset}
-            currentIndex={currentIndex()}
-            totalCount={totalCount()}
-          />
+        <div class="h-full w-full flex flex-col overflow-hidden bg-white text-black dark:bg-black dark:text-white relative">          <Header
+          mode={mode()}
+          timeLeft={timeLeft()}
+          onOpenCategoryManager={() => setViewMode('manage')}
+          onReset={handleReset}
+          currentIndex={currentIndex()}
+          totalCount={totalCount()}
+        />
           <main
             class="flex-1 flex justify-center items-center overflow-hidden px-4 py-2 relative"
             onClick={(e) => {

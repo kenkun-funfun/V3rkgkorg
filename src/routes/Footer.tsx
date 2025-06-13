@@ -15,6 +15,9 @@ import {
   Trash,
 } from 'lucide-solid';
 import { getToggleButtonClasses, getIconColor } from '@/styles/buttonStates';
+import { Sun, Moon } from 'lucide-solid';
+import { theme, toggleTheme } from '@/stores/themeStore'; // ✅ ストア読み込み
+
 
 type Props = {
   mode: ModeType;
@@ -43,8 +46,8 @@ export default function Footer(props: Props) {
           <button
             onClick={props.onTogglePause}
             class={`p-2 rounded border ${props.mode === MODE.PAUSED
-                ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
-                : 'border-white hover:bg-white/10'
+              ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
+              : 'border-white hover:bg-white/10'
               }`}
           >
             {props.mode === MODE.RUNNING ? <Pause /> : <Play />}
@@ -81,12 +84,21 @@ export default function Footer(props: Props) {
 
       <Show when={props.mode === MODE.START_SCREEN}>
         <div class="flex justify-center">
+          {/* テーマ切り替えボタンを左側に表示 */}
+          <button
+            onClick={toggleTheme}
+            class="absolute left-4 bottom-4 p-2 rounded-full bg-zinc-700 hover:bg-zinc-600 text-white"
+            title="テーマ切り替え"
+          >
+            <Show when={theme() === 'dark'} fallback={<Moon size={18} />}>
+              <Sun size={18} />
+            </Show>
+          </button>
           <a
             href="https://x.com/rkgk_org"
             target="_blank"
             rel="noopener noreferrer"
-            class="flex items-center gap-1 text-sm underline text-zinc-400 hover:text-white transition"
-          >
+            class="flex items-center gap-1 text-sm underline text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white transition"          >
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M14.305 10.58 22.094 2h-2.003l-6.66 7.579L8.308 2H2l8.135 11.567L2 22h2.003l7.104-8.088L15.691 22H22l-7.695-11.42zm-2.51 2.863-.823-1.155L4.59 3.39h2.987l5.34 7.499.823 1.155 6.743 9.457h-2.987l-5.7-8.058z" />
             </svg>
