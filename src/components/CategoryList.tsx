@@ -1,12 +1,12 @@
 // src/components/CategoryList.tsx
 import { For, createSignal } from 'solid-js';
 import {
-  categoryData,
+  get,
   pinnedCategories,
-  togglePin,
-  deleteCategory,
-  renameCategory,
+  setPinnedCategories,
   addCategory,
+  removeCategory,
+  renameCategory,
 } from '@/stores/categoryStore';
 import { Pencil, Trash2, Pin, Plus, UploadCloud, DownloadCloud } from 'lucide-solid';
 
@@ -15,13 +15,13 @@ type Props = {
   onSelect: (name: string) => void;
   onSave: () => void;
   onLoad: () => void;
+  onAddCategory: () => void;
 };
 
 export default function CategoryList(props: Props) {
   const [editing, setEditing] = createSignal<string | null>(null);
   const [inputValue, setInputValue] = createSignal('');
   const [filter, setFilter] = createSignal('');
-  const [newName, setNewName] = createSignal('');
 
   const handleRename = (oldName: string) => {
     const newNameStr = inputValue().trim();
@@ -31,17 +31,8 @@ export default function CategoryList(props: Props) {
     setEditing(null);
   };
 
-  const handleAdd = () => {
-    const name = newName().trim();
-    if (name && !categoryData[name]) {
-      addCategory(name);
-      props.onSelect(name);
-      setNewName('');
-    }
-  };
-
   const allCategories = () => {
-    const all = Object.keys(categoryData);
+    const all = Object.keys(get());
     const pinned = pinnedCategories();
     const rest = all.filter((name) => !pinned.includes(name));
     return [...pinned, ...rest].filter((name) =>
@@ -74,7 +65,7 @@ export default function CategoryList(props: Props) {
           <Plus size={18} />
         </button>
       </div>
-      {/* 🔍 検索＋追加 */}
+      {/* 🔍 検索 */}
       <div class="flex gap-2 mb-2">
         <input
           type="text"
@@ -89,8 +80,8 @@ export default function CategoryList(props: Props) {
         {(name) => (
           <div
             class={`flex items-center justify-between px-3 py-2 rounded cursor-pointer transition-all duration-150 border-2 ${props.selected === name
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900'
-                : 'border-transparent hover:border-zinc-400'
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900'
+              : 'border-transparent hover:border-zinc-400'
               }`}
             onClick={() => props.onSelect(name)}
           >
@@ -112,7 +103,10 @@ export default function CategoryList(props: Props) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  togglePin(name);
+                  const next = pinnedCategories().includes(name)
+                    ? pinnedCategories().filter((n) => n !== name)
+                    : [...pinnedCategories(), name];
+                  setPinnedCategories(next);
                 }}
                 class="p-1"
               >
@@ -134,7 +128,7 @@ export default function CategoryList(props: Props) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm(`「${name}」を削除しますか？`)) deleteCategory(name);
+                  if (confirm(`「${name}」を削除しますか？`)) removeCategory(name);
                 }}
                 class="p-1 hover:text-red-500"
               >

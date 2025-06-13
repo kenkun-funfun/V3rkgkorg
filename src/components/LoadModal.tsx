@@ -1,10 +1,9 @@
 // src/components/LoadModal.tsx
 import { X, UploadCloud } from 'lucide-solid';
 import type { ImageItem } from '@/stores/categoryStore';
-import { normalizeRawData } from '@/stores/categoryStore';
+import { loadFromJson } from '@/stores/categoryStore';
 
 type Props = {
-  onLoad: (data: Record<string, ImageItem[]>) => void;
   onClose: () => void;
 };
 
@@ -18,8 +17,7 @@ export default function LoadModal(props: Props) {
     try {
       const text = await file.text();
       const raw = JSON.parse(text);
-      const normalized = normalizeRawData(raw);
-      props.onLoad(normalized);
+      loadFromJson(raw)
       props.onClose();
     } catch (err) {
       alert('JSONの読み込みに失敗しました。形式をご確認ください。');

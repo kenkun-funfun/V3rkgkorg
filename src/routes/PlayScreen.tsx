@@ -16,7 +16,7 @@ import SaveModal from '@/components/SaveModal';
 import LoadModal from '@/components/LoadModal';
 import CategoryAddModal from '@/components/CategoryAddModal';
 import { addCategory } from '@/stores/categoryStore';
-import { categoryData, setCategoryData, addImage, removeImage } from '@/stores/categoryStore';
+import { get, loadFromJson, addImage, removeImage } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils'; // ← パスを合わせて
 import { addToast } from '@/components/Toast';
 
@@ -76,7 +76,7 @@ export default function PlayScreen() {
   const startPlayback = (selected: string[]) => {
     const shuffle = localStorage.getItem('shuffle') === 'true';
     const allImages = selected.flatMap((name) => {
-      const images = categoryData[name];
+      const images = get()[name];
       if (!images || !Array.isArray(images)) return [];
       return images.map((img) => img.base64 || img.url).filter(Boolean);
     });
@@ -175,7 +175,7 @@ export default function PlayScreen() {
     if (!current) return;
 
     // categoryData から画像を削除
-    for (const [cat, entry] of Object.entries(categoryData)) {
+    for (const [cat, entry] of Object.entries(get())) {
       const idx = entry.findIndex((img) => (img.base64 || img.url) === current);
       if (idx !== -1) {
         removeImage(cat, idx);
@@ -346,7 +346,7 @@ export default function PlayScreen() {
               <Show when={selectedCategories()[0]}>
                 <ImageManager
                   categoryName={selectedCategories()[0]}
-                  images={categoryData[selectedCategories()[0]] || []}
+                  images={get()[selectedCategories()[0]] || []}
                   onAdd={async (files) => {
                     const name = selectedCategories()[0];
                     if (!name) return;
@@ -371,11 +371,11 @@ export default function PlayScreen() {
       </Show>
       {/* ✅ モーダル表示 */}
       <Show when={showSaveModal()}>
-        <SaveModal categoryData={categoryData} onClose={() => setShowSaveModal(false)} />
+        <SaveModal categoryData={get()} onClose={() => setShowSaveModal(false)} />
       </Show>
 
       <Show when={showLoadModal()}>
-        <LoadModal onLoad={(data) => setCategoryData(data)} onClose={() => setShowLoadModal(false)} />
+        <LoadModal onLoad={(data) => loadFromJson(data)} onClose={() => setShowLoadModal(false)} />
       </Show>
 
       <Show when={showAddModal()}>

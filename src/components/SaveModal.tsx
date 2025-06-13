@@ -2,20 +2,15 @@
 import { X, Download } from 'lucide-solid';
 import { downloadJson } from '@/lib/jsonUtil';
 import type { ImageItem } from '@/stores/categoryStore';
+import { toJson } from '@/stores/categoryStore';
 
 type Props = {
-  categoryData: Record<string, ImageItem[]>;
   onClose: () => void;
 };
 
 export default function SaveModal(props: Props) {
   const handleSave = () => {
-    const json = {
-      version: 'v1',
-      data: Object.fromEntries(
-        Object.entries(props.categoryData).map(([key, value]) => [key, { images: value }])
-      ),
-    };
+    const json = toJson();
     downloadJson(json, 'category_data.json');
     props.onClose();
   };

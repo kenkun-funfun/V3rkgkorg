@@ -2,7 +2,7 @@
 
 import { createSignal, For, Show } from 'solid-js';
 import { X, Pin, PinOff } from 'lucide-solid';
-import { categoryData } from '@/stores/categoryStore';
+import { get } from '@/stores/categoryStore';
 
 type Props = {
   selected: string[];
@@ -27,7 +27,7 @@ export default function CategoryPanel(props: Props) {
       : [...pinned(), name];
     setPinned(next);
     // ✅ categoryData に存在するものだけ保存
-    const valid = next.filter((n) => categoryData[n]);
+    const valid = next.filter((n) => get()[n]);
     localStorage.setItem(pinnedKey, JSON.stringify(valid));
   };
 
@@ -38,13 +38,13 @@ export default function CategoryPanel(props: Props) {
       : [...current, name];
     props.setSelected(updated);
     // ✅ categoryData に存在するものだけ保存
-    const valid = updated.filter((n) => categoryData[n]);
+    const valid = updated.filter((n) => get()[n]);
     localStorage.setItem('selectedCategories', JSON.stringify(valid));
   };
 
 
   const filteredNames = () => {
-    const all = Object.keys(categoryData);
+    const all = Object.keys(get());
     const query = search().toLowerCase();
     return [
       ...pinned().filter((n) => all.includes(n) && n.toLowerCase().includes(query)),

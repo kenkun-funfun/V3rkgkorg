@@ -1,14 +1,14 @@
 // src/components/ImageManager.tsx
 import { createSignal, For, Show } from 'solid-js';
 import { Trash2, UploadCloud } from 'lucide-solid';
+import { addImage, removeImage } from '@/stores/categoryStore';
+import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 
 const [isDragOver, setIsDragOver] = createSignal(false);
 
 type Props = {
   categoryName: string;
   images: { url?: string; base64?: string; hash: string }[];
-  onAdd: (files: File[]) => void;
-  onDelete: (index: number) => void;
 };
 
 export default function ImageManager(props: Props) {
@@ -27,7 +27,11 @@ export default function ImageManager(props: Props) {
     const files = Array.from(e.dataTransfer?.files || []).filter((f) =>
       f.type.startsWith('image/')
     );
-    props.onAdd(files);
+    files.forEach(async (file) => {
+      const base64 = await resizeAndConvertToBase64(file, 1080, 1350);
+      const hash = await generateHash(base64);
+      addImage(props.categoryName, { base64, hash });
+    });
   };
 
   const handleBrowse = () => {
@@ -36,7 +40,13 @@ export default function ImageManager(props: Props) {
     input.multiple = true;
     input.accept = 'image/*';
     input.onchange = () => {
-      if (input.files) props.onAdd(Array.from(input.files));
+      if (input.files) {
+        Array.from(input.files).forEach(async (file) => {
+          const base64 = await resizeAndConvertToBase64(file, 1080, 1350);
+          const hash = await generateHash(base64);
+          addImage(props.categoryName, { base64, hash });
+        });
+      }
     };
     input.click();
   };
@@ -102,7 +112,7 @@ export default function ImageManager(props: Props) {
                 />
                 <button
                   class="absolute top-1 right-1 bg-red-600 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition"
-                  onClick={() => props.onDelete(globalIndex)}
+                  onClick={() => removeImage(props.categoryName, globalIndex)}
                 >
                   <Trash2 size={16} />
                 </button>
