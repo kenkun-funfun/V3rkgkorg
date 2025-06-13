@@ -41,6 +41,8 @@ export default function PlayScreen() {
   const [showLoadModal, setShowLoadModal] = createSignal(false);  // ✅ 追加
   const [showAddModal, setShowAddModal] = createSignal(false);
   const currentImage = () => playList()[imageIndex()];
+  const currentIndex = () => imageIndex();
+  const totalCount = () => playList().length;
 
   let timer: NodeJS.Timeout | null = null;
   let lastActionTime = 0;
@@ -234,9 +236,9 @@ export default function PlayScreen() {
             timeLeft={timeLeft()}
             onOpenCategoryManager={() => setViewMode('manage')}
             onReset={handleReset}
+            currentIndex={currentIndex()}
+            totalCount={totalCount()}
           />
-
-
           <main
             class="flex-1 flex justify-center items-center overflow-hidden px-4 py-2 relative"
             onClick={(e) => {

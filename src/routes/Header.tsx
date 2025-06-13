@@ -10,6 +10,8 @@ type Props = {
   timeLeft: number;
   onOpenCategoryManager: () => void;
   onReset?: () => void;
+  currentIndex?: number;
+  totalCount?: number;
 };
 
 const Header: Component<Props> = (props) => {
@@ -40,7 +42,12 @@ const Header: Component<Props> = (props) => {
           </>
         )}
       </div>
-
+      {/* 再生中の枚数表示 */}
+      <Show when={props.mode === MODE.RUNNING && props.totalCount}>
+        <span class="text-xs text-white dark:text-zinc-300 ml-2">
+          {props.currentIndex! + 1} / {props.totalCount}
+        </span>
+      </Show>
       {/* リセットボタン */}
       {props.mode !== 'START_SCREEN' && props.onReset ? (
         <button
