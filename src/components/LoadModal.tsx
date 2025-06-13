@@ -1,60 +1,59 @@
-
-import { createSignal } from 'solid-js';
-import { normalizeRawData } from '@/stores/categoryStore'; // ← 追加
+// src/components/LoadModal.tsx
+import { X, UploadCloud } from 'lucide-solid';
+import type { ImageItem } from '@/stores/categoryStore';
+import { normalizeRawData } from '@/stores/categoryStore';
 
 type Props = {
-  onLoad: (data: Record<string, { images: { base64?: string; url?: string; hash: string }[] }>) => void;
+  onLoad: (data: Record<string, ImageItem[]>) => void;
   onClose: () => void;
 };
 
 export default function LoadModal(props: Props) {
-  const [error, setError] = createSignal<string | null>(null);
-
+  let fileInputRef: HTMLInputElement | undefined;
   const handleFile = async (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
+    const input = e.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
 
-    const file = input.files[0];
     try {
       const text = await file.text();
       const raw = JSON.parse(text);
-
-      const normalized: { version: 'v1'; data: Record<string, { images: { url?: string; base64?: string; hash: string }[] }> } = {
-        version: 'v1',
-        data: {}
-      };
-
-      if (raw.version === 'v1' && typeof raw.data === 'object') {
-        Object.assign(normalized.data, raw.data);
-      } else {
-        for (const key in raw) {
-          const value = raw[key];
-          if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
-            normalized.data[key] = {
-              images: value.map((url: string) => ({ url, hash: url }))
-            };
-          }
-        }
-      }
-
-      props.onLoad(normalized.data);
+      const normalized = normalizeRawData(raw);
+      props.onLoad(normalized);
       props.onClose();
     } catch (err) {
-      console.error("JSON読み込みエラー:", err);
-      setError('JSONの読み込みに失敗しました。形式をご確認ください。');
+      alert('JSONの読み込みに失敗しました。形式をご確認ください。');
+      console.error('JSON読み込みエラー:', err);
     }
   };
 
   return (
-    <div class="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-lg w-full max-w-md relative">
-        <button class="absolute top-2 right-2 text-zinc-500 hover:text-zinc-800" onClick={props.onClose}>×</button>
-        <h2 class="text-lg font-bold mb-4">カテゴリデータの読み込み</h2>
-        <p class="text-sm mb-4">保存済みのJSONファイルを読み込んで、カテゴリデータを置き換えます。</p>
-        <input type="file" accept=".json" onChange={handleFile} class="mb-4" />
-        {error() && <p class="text-red-600 text-sm">{error()}</p>}
-        <div class="flex justify-end mt-6">
-          <button class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100" onClick={props.onClose}>閉じる</button>
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-zinc-800 p-6 rounded shadow-lg w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold text-black dark:text-white">📂 カテゴリデータ読み込み</h2>
+          <button onClick={props.onClose}>
+            <X class="text-black dark:text-white" size={20} />
+          </button>
+        </div>
+        <p class="text-sm text-black dark:text-white mb-4">
+          保存された JSON ファイルを読み込んでカテゴリデータを置き換えます。
+        </p>
+        <div class="flex justify-end">
+          <input
+            type="file"
+            accept=".json"
+            ref={(el) => (fileInputRef = el)}
+            class="hidden"
+            onChange={handleFile}
+          />
+          <button
+            onClick={() => fileInputRef?.click()}
+            class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            <UploadCloud size={16} />
+            読み込む
+          </button>
         </div>
       </div>
     </div>

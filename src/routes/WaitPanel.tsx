@@ -1,9 +1,10 @@
 // src/routes/WaitPanel.tsx
 import { createSignal, onMount, For } from 'solid-js';
-import { Menu } from 'lucide-solid';
-import { normalizedData } from '@/lib/data';
+import type { Setter } from 'solid-js';
+import type { ModeType } from '@/lib/constants';
 
 type Props = {
+  setMode: Setter<ModeType>;
   selectedCategories: string[];
   setSelectedCategories: (value: string[]) => void;
   onStart: (selected: string[]) => void;

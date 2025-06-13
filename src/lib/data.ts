@@ -8,7 +8,7 @@ export function normalizeImageData(input: any): NormalizedImageData {
   // case: ネスト構造（v1）
   if (input?.version === 'v1' && typeof input.data === 'object') {
     return Object.fromEntries(
-      Object.entries(input.data).map(([key, value]) => [key, { images: value.images || [] }])
+      Object.entries(input.data).map(([key, value]) => [key, { images: (value as any).images || [] }])
     );
   }
 

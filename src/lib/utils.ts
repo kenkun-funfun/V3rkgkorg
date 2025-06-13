@@ -71,3 +71,8 @@ export const resizeAndConvertToBase64 = (
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+  
+// ✅ URL からファイル名（ハッシュ）を抽出するユーティリティ
+export function extractHash(url: string): string {
+  return url.split('/').pop()?.split('.')[0] || '';
+}

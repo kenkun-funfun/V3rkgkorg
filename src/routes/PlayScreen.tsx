@@ -1,3 +1,4 @@
+/// <reference types="node" />
 // src/components/PlayScreen.tsx
 import { Show, createSignal, onCleanup, onMount } from 'solid-js';
 import Header from './Header';
@@ -15,6 +16,7 @@ import SaveModal from '@/components/SaveModal';
 import LoadModal from '@/components/LoadModal';
 import { categoryData, setCategoryData, addImage, removeImage } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils'; // ← パスを合わせて
+import { addToast } from '@/components/Toast';
 
 
 
@@ -71,17 +73,18 @@ export default function PlayScreen() {
   const startPlayback = (selected: string[]) => {
     const shuffle = localStorage.getItem('shuffle') === 'true';
     const allImages = selected.flatMap((name) => {
-      const entry = categoryData[name];
-      if (!entry || !entry.images) return [];
-      return entry.images.map((img) => img.base64 || img.url);
+      const images = categoryData[name];
+      if (!images || !Array.isArray(images)) return [];
+      return images.map((img) => img.base64 || img.url).filter(Boolean);
     });
+
 
     const shuffled = shuffle ? [...allImages].sort(() => Math.random() - 0.5) : allImages;
     const max = parseInt(localStorage.getItem('maxPlays') || '100');
-    const finalList = shuffled.slice(0, max);
+    const finalList = (shuffled.slice(0, max)).filter(Boolean);
 
     setSelectedCategories(selected);
-    setPlayList(finalList);
+    setPlayList(finalList.filter((v): v is string => typeof v === 'string'));
     setImageIndex(0);
     setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
     setShowCategoryPanel(false);
@@ -145,7 +148,6 @@ export default function PlayScreen() {
 
   const handleFlipX = () => setIsFlippedX((prev) => !prev);
   const handleFlipY = () => setIsFlippedY((prev) => !prev);
-  const handleClearFilter = () => setFilter('');
   const handleDelete = () => {
     setShowDeletePanel((prev) => {
       if (!prev) setShowFilterPanel(false);
@@ -171,7 +173,7 @@ export default function PlayScreen() {
 
     // categoryData から画像を削除
     for (const [cat, entry] of Object.entries(categoryData)) {
-      const idx = entry.images.findIndex((img) => (img.base64 || img.url) === current);
+      const idx = entry.findIndex((img) => (img.base64 || img.url) === current);
       if (idx !== -1) {
         removeImage(cat, idx);
         break;
@@ -225,9 +227,10 @@ export default function PlayScreen() {
           <Header
             mode={mode()}
             timeLeft={timeLeft()}
-            onOpenCategoryManager={() => setViewMode('manage')}
+            onOpenCategoryManager={() => setShowCategoryPanel(true)}
             onReset={handleReset}
           />
+
 
           <main
             class="flex-1 flex justify-center items-center overflow-hidden px-4 py-2 relative"
@@ -337,7 +340,7 @@ export default function PlayScreen() {
               <Show when={selectedCategories()[0]}>
                 <ImageManager
                   categoryName={selectedCategories()[0]}
-                  images={categoryData[selectedCategories()[0]]?.images || []}
+                  images={categoryData[selectedCategories()[0]] || []}
                   onAdd={async (files) => {
                     const name = selectedCategories()[0];
                     if (!name) return;

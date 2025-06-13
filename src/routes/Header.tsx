@@ -1,11 +1,12 @@
 // src/routes/Header.tsx
 import type { Component } from 'solid-js';
-import type { Mode } from './PlayScreen';
 import { MODE } from '@/lib/constants';
+import type { ModeType } from '@/lib/constants'; // ✅ こっちが正しい型
 import { Timer, X, Settings } from 'lucide-solid';
+import { Show } from 'solid-js';
 
 type Props = {
-  mode: Mode;
+  mode: ModeType; // ✅ これが正しい
   timeLeft: number;
   onOpenCategoryManager: () => void;
   onReset?: () => void;
