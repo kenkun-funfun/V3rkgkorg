@@ -221,13 +221,15 @@ export default function PlayScreen() {
   onCleanup(() => stopTimer());
 
   return (
-    <section class="h-screen w-screen overflow-hidden">
-      <Show when={viewMode() === 'play'}>
+    <section
+      class="w-screen overflow-hidden"
+      style={{ height: '100dvh' }}
+    >      <Show when={viewMode() === 'play'}>
         <div class="h-full w-full flex flex-col overflow-hidden bg-black text-white relative">
           <Header
             mode={mode()}
             timeLeft={timeLeft()}
-            onOpenCategoryManager={() => setShowCategoryPanel(true)}
+            onOpenCategoryManager={() => setViewMode('manage')}
             onReset={handleReset}
           />
 
