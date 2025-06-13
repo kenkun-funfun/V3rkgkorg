@@ -40,7 +40,13 @@ export default function Footer(props: Props) {
           <button onClick={props.onPrev} class="p-2 rounded border border-white hover:bg-white/10">
             <SkipBack />
           </button>
-          <button onClick={props.onTogglePause} class="p-2 rounded border border-white hover:bg-white/10">
+          <button
+            onClick={props.onTogglePause}
+            class={`p-2 rounded border ${props.mode === MODE.PAUSED
+                ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
+                : 'border-white hover:bg-white/10'
+              }`}
+          >
             {props.mode === MODE.RUNNING ? <Pause /> : <Play />}
           </button>
           <button onClick={props.onNext} class="p-2 rounded border border-white hover:bg-white/10">

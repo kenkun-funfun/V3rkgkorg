@@ -56,7 +56,7 @@ export default function CategoryPanel(props: Props) {
 
   return (
     <Show when={props.isOpen}>
-      <aside class="absolute right-0 top-0 h-screen max-w-xs w-full z-50 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-lg border-l border-zinc-700 flex flex-col">
+      <aside class="absolute right-0 top-0 max-h-[100dvh] pb-[100px] w-full z-50 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-lg border-l border-zinc-700 flex flex-col overflow-hidden">
         <div class="flex items-center justify-between px-4 py-2 border-b border-zinc-700">
           <h2 class="font-bold">カテゴリ</h2>
           <button onClick={props.onClose}><X size={18} /></button>
@@ -74,21 +74,32 @@ export default function CategoryPanel(props: Props) {
 
         <div class="flex-1 overflow-y-auto px-4 pb-6 space-y-2">
           <For each={filteredNames()}>{(name) => (
-            <label class="flex justify-between items-center gap-2 text-sm">
-              <span>
+            <label class="flex items-center justify-between px-2 py-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm">
+              <div class="flex items-center gap-2 overflow-hidden">
                 <input
                   type="checkbox"
                   checked={props.selected?.includes(name) ?? false}
                   onChange={() => toggleSelect(name)}
-                  class="mr-2"
                 />
-                {name}
-              </span>
-              <button onClick={() => togglePin(name)}>
+                <span class="truncate">{name}</span>
+              </div>
+              <button
+                onClick={() => togglePin(name)}
+                class={pinned().includes(name) ? 'text-red-500' : 'text-gray-400'}
+              >
                 {pinned().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
               </button>
-            </label>
-          )}</For>
+            </label>)}
+          </For>
+        </div>
+        {/* 閉じるボタン */}
+        <div class="border-t border-zinc-700 p-4">
+          <button
+            class="w-full py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded"
+            onClick={props.onClose}
+          >
+            閉じる
+          </button>
         </div>
       </aside>
     </Show>

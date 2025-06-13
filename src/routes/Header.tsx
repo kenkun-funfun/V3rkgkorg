@@ -39,7 +39,6 @@ const Header: Component<Props> = (props) => {
             <span>残り {formatTime(props.timeLeft)}</span>
           </>
         )}
-        <span class="text-xs opacity-50">{props.mode}</span>
       </div>
 
       {/* リセットボタン */}

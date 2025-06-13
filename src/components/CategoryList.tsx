@@ -8,7 +8,7 @@ import {
   removeCategory,
   renameCategory,
 } from '@/stores/categoryStore';
-import { Pencil, Trash2, Pin, Plus, UploadCloud, DownloadCloud } from 'lucide-solid';
+import { Pencil, Trash2, Pin, PinOff, Plus, UploadCloud, DownloadCloud } from 'lucide-solid';
 
 type Props = {
   selected: string | null;
@@ -110,11 +110,13 @@ export default function CategoryList(props: Props) {
                 }}
                 class="p-1"
               >
-                <Pin
-                  size={14}
-                  class={pinnedCategories().includes(name) ? 'text-red-500' : 'text-zinc-500'}
-                />
+                {pinnedCategories().includes(name) ? (
+                  <Pin size={14} class="text-red-500" />
+                ) : (
+                  <PinOff size={14} class="text-zinc-500" />
+                )}
               </button>
+
               <button
                 onClick={(e) => {
                   e.stopPropagation();
