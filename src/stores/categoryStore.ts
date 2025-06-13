@@ -3,6 +3,7 @@ import { createStore } from 'solid-js/store';
 import { createSignal, createRoot } from 'solid-js';
 import rawExample from '@/data/example.json';
 import { extractHash } from '@/lib/utils';
+import { set, get, deleteCategory } from '@/stores/categoryStore';
 
 export type ImageItem = {
   base64?: string;
@@ -61,6 +62,7 @@ function createCategoryStore() {
     localStorage.setItem('pinnedCategories', JSON.stringify(pinned.filter((n: string) => n !== name)));
   };
 
+
   const renameCategory = (oldName: string, newName: string): boolean => {
     if (!newName.trim() || categoryData[newName]) return false;
     const data = categoryData[oldName];
@@ -105,6 +107,8 @@ function createCategoryStore() {
 
   return {
     get,
+    set: setCategoryData,
+    deleteCategory: removeCategory,
     addCategory,
     removeCategory,
     renameCategory,
@@ -120,6 +124,8 @@ function createCategoryStore() {
 
 export const {
   get,
+  set,
+  deleteCategory,
   addCategory,
   removeCategory,
   renameCategory,
@@ -134,3 +140,75 @@ export const {
 
 export type { CategoryData };
 export { normalizeRawData };
+
+// 差分: 末尾あたりに以下を追加
+
+export type MergeMode =
+  | 'overwrite'
+  | 'delete-add'
+  | 'append'
+  | 'rename-add'
+  | 'reset-and-load';
+
+export function loadFromJsonWithMode(
+  raw: any,
+  mode: MergeMode = 'overwrite',
+  onProgress?: (index: number, total: number) => void
+) {
+  const normalized = normalizeRawData(raw);
+  const current = get();
+  const entries = Object.entries(normalized);
+
+  switch (mode) {
+    case 'overwrite':
+      for (let i = 0; i < entries.length; i++) {
+        const [name, images] = entries[i];
+        set(name, images);
+        onProgress?.(i + 1, entries.length);
+      }
+      break;
+
+    case 'delete-add':
+      for (let i = 0; i < entries.length; i++) {
+        const [name, images] = entries[i];
+        if (current[name]) deleteCategory(name);
+        set(name, images);
+        onProgress?.(i + 1, entries.length);
+      }
+      break;
+
+    case 'append':
+      for (let i = 0; i < entries.length; i++) {
+        const [name, images] = entries[i];
+        const existing = current[name] || [];
+        set(name, [...existing, ...images]);
+        onProgress?.(i + 1, entries.length);
+      }
+      break;
+
+    case 'rename-add':
+      for (let i = 0; i < entries.length; i++) {
+        const [originalName, images] = entries[i];
+        let name = originalName;
+        let suffix = 2;
+        while (current[name]) {
+          name = `${originalName}_${suffix++}`;
+        }
+        set(name, images);
+        onProgress?.(i + 1, entries.length);
+      }
+      break;
+
+    case 'reset-and-load':
+      Object.keys(current).forEach(deleteCategory);
+      for (let i = 0; i < entries.length; i++) {
+        const [name, images] = entries[i];
+        set(name, images);
+        onProgress?.(i + 1, entries.length);
+      }
+      break;
+
+    default:
+      console.warn(`Unknown load mode: ${mode}`);
+  }
+}

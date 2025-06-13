@@ -3,6 +3,7 @@ import { createSignal, For, Show } from 'solid-js';
 import { Trash2, UploadCloud } from 'lucide-solid';
 import { addImage, removeImage } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
+import UploadProgressModal from './UploadProgressModal';
 
 const [isDragOver, setIsDragOver] = createSignal(false);
 
@@ -15,6 +16,10 @@ export default function ImageManager(props: Props) {
   const [perPage, setPerPage] = createSignal(12);
   const [currentPage, setCurrentPage] = createSignal(1);
 
+  const [showProgress, setShowProgress] = createSignal(false);
+  const [progressText, setProgressText] = createSignal('');
+  const [aborted, setAborted] = createSignal(false);
+
   const totalPages = () => Math.ceil(props.images.length / perPage());
 
   const paginatedImages = () => {
@@ -22,16 +27,31 @@ export default function ImageManager(props: Props) {
     return props.images.slice(start, start + perPage());
   };
 
+  const handleFiles = async (name: string, files: File[]) => {
+    setShowProgress(true);
+    setAborted(false);
+    setProgressText('');
+
+    for (let i = 0; i < files.length; i++) {
+      if (aborted()) {
+        setProgressText(`⏹ 停止しました (${i} / ${files.length})`);
+        break;
+      }
+      const file = files[i];
+      const base64 = await resizeAndConvertToBase64(file, 1080, 1350);
+      const hash = await generateHash(base64);
+      addImage(name, { base64, hash });
+      setProgressText(`${i + 1} / ${files.length} 処理中…`);
+    }
+    if (!aborted()) setProgressText('✅ 完了しました！');
+  };
+
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer?.files || []).filter((f) =>
       f.type.startsWith('image/')
     );
-    files.forEach(async (file) => {
-      const base64 = await resizeAndConvertToBase64(file, 1080, 1350);
-      const hash = await generateHash(base64);
-      addImage(props.categoryName, { base64, hash });
-    });
+    handleFiles(props.categoryName, files);
   };
 
   const handleBrowse = () => {
@@ -41,11 +61,7 @@ export default function ImageManager(props: Props) {
     input.accept = 'image/*';
     input.onchange = () => {
       if (input.files) {
-        Array.from(input.files).forEach(async (file) => {
-          const base64 = await resizeAndConvertToBase64(file, 1080, 1350);
-          const hash = await generateHash(base64);
-          addImage(props.categoryName, { base64, hash });
-        });
+        handleFiles(props.categoryName, Array.from(input.files));
       }
     };
     input.click();
@@ -53,13 +69,20 @@ export default function ImageManager(props: Props) {
 
   return (
     <div class="space-y-4">
+      <UploadProgressModal
+        visible={showProgress()}
+        progressText={progressText()}
+        onAbort={() => setAborted(true)}
+        onClose={() => setShowProgress(false)}
+      />
+
       {/* ドロップゾーン */}
       <div
         class={`rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-all
-    ${isDragOver()
+          ${isDragOver()
             ? 'border-blue-500 bg-blue-100 dark:bg-zinc-800'
             : 'border-gray-400 bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-zinc-900'}
-  `}
+        `}
         onClick={handleBrowse}
         onDragEnter={(e) => {
           e.preventDefault();
@@ -81,7 +104,6 @@ export default function ImageManager(props: Props) {
           <span>ここに画像をドロップ、またはクリックして追加</span>
         </div>
       </div>
-
 
       {/* 表示数切替 */}
       <div class="flex justify-end items-center gap-2 text-sm text-gray-600 dark:text-gray-300">

@@ -1,14 +1,27 @@
 // src/components/LoadModal.tsx
 import { X, UploadCloud } from 'lucide-solid';
 import type { ImageItem } from '@/stores/categoryStore';
-import { loadFromJson } from '@/stores/categoryStore';
+import { loadFromJsonWithMode, type MergeMode } from '@/stores/categoryStore';
+import { createSignal, Show } from 'solid-js';
 
 type Props = {
   onClose: () => void;
 };
 
+const modeDescriptions: Record<MergeMode, string> = {
+  overwrite: '同名カテゴリを上書きします',
+  'delete-add': '同名カテゴリを削除してから追加します',
+  append: '同名カテゴリがあればその中に画像を追加します（重複は考慮しません）',
+  'rename-add': '同名カテゴリがあれば名前を変更して追加します（_2などを付加）',
+  'reset-and-load': 'すべてのカテゴリを削除してから、JSONの内容を反映します',
+};
+
 export default function LoadModal(props: Props) {
   let fileInputRef: HTMLInputElement | undefined;
+  const [mode, setMode] = createSignal<MergeMode>('overwrite');
+  const [progressText, setProgressText] = createSignal('');
+  const modeDescription = () => modeDescriptions[mode()];
+
   const handleFile = async (e: Event) => {
     const input = e.currentTarget as HTMLInputElement;
     const file = input.files?.[0];
@@ -17,7 +30,10 @@ export default function LoadModal(props: Props) {
     try {
       const text = await file.text();
       const raw = JSON.parse(text);
-      loadFromJson(raw)
+      loadFromJsonWithMode(raw, mode(), (i, total) => {
+        setProgressText(`${i} / ${total} 処理中...`);
+      });
+      setProgressText('✅ 完了しました！');
       props.onClose();
     } catch (err) {
       alert('JSONの読み込みに失敗しました。形式をご確認ください。');
@@ -34,24 +50,36 @@ export default function LoadModal(props: Props) {
             <X class="text-black dark:text-white" size={20} />
           </button>
         </div>
-        <p class="text-sm text-black dark:text-white mb-4">
-          保存された JSON ファイルを読み込んでカテゴリデータを置き換えます。
-        </p>
-        <div class="flex justify-end">
+        <div class="space-y-4 text-sm text-black dark:text-white mb-4">
+          <p>保存された JSON ファイルを読み込んでカテゴリデータを更新します。</p>
+          <div>
+            <label class="block mb-1 font-semibold">読み込みモード：</label>
+            <select
+              value={mode()}
+              onChange={(e) => setMode(e.currentTarget.value as MergeMode)}
+              class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-700 text-black dark:text-white"
+            >
+              <option value="overwrite">上書き</option>
+              <option value="delete-add">削除追加</option>
+              <option value="append">追記</option>
+              <option value="rename-add">リネーム追加</option>
+              <option value="reset-and-load">初期化して読込</option>
+            </select>
+            <p class="mt-2 text-sm text-zinc-800 dark:text-zinc-200">
+              {modeDescription()}
+            </p>
+          </div>
+          <p class="text-xs opacity-80">{progressText()}</p>
+        </div>
+        {/* ファイル選択 */}
+        <div class="mt-4">
           <input
+            ref={fileInputRef}
             type="file"
-            accept=".json"
-            ref={(el) => (fileInputRef = el)}
-            class="hidden"
+            accept="application/json"
             onChange={handleFile}
+            class="block w-full text-sm text-black dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
           />
-          <button
-            onClick={() => fileInputRef?.click()}
-            class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            <UploadCloud size={16} />
-            読み込む
-          </button>
         </div>
       </div>
     </div>
