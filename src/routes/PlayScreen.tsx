@@ -15,6 +15,8 @@ import ImageManager from '@/components/ImageManager';
 import SaveModal from '@/components/SaveModal';
 import LoadModal from '@/components/LoadModal';
 import CategoryAddModal from '@/components/CategoryAddModal';
+import DuplicateCheckModal from '@/components/DuplicateCheckModal';
+
 import { addCategory } from '@/stores/categoryStore';
 import { get, loadFromJson, addImage, removeImage } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils'; // ← パスを合わせて
@@ -40,6 +42,8 @@ export default function PlayScreen() {
   const [showSaveModal, setShowSaveModal] = createSignal(false);  // ✅ 追加
   const [showLoadModal, setShowLoadModal] = createSignal(false);  // ✅ 追加
   const [showAddModal, setShowAddModal] = createSignal(false);
+  const [showDuplicateModal, setShowDuplicateModal] = createSignal(false);
+
   const currentImage = () => playList()[imageIndex()];
   const currentIndex = () => imageIndex();
   const totalCount = () => playList().length;
@@ -259,6 +263,7 @@ export default function PlayScreen() {
             <Show when={mode() === MODE.START_SCREEN} fallback={
               <ImageDisplay
                 imageUrl={playList()[imageIndex()] || null}
+                preloadUrl={playList()[imageIndex() + 1] || null} // ✅ 追加
                 isFlippedX={isFlippedX()}
                 isFlippedY={isFlippedY()}
                 filter={filter()}
@@ -342,6 +347,7 @@ export default function PlayScreen() {
                 onSave={() => setShowSaveModal(true)}
                 onLoad={() => setShowLoadModal(true)}
                 onAddCategory={() => setShowAddModal(true)} // ✅ 追加
+                onShowDuplicateModal={() => setShowDuplicateModal(true)}
               />
             </div>
             <div class="flex-1 h-[55vh] md:h-auto overflow-y-auto p-4">
@@ -382,6 +388,10 @@ export default function PlayScreen() {
 
       <Show when={showAddModal()}>
         <CategoryAddModal onAdd={addCategory} onClose={() => setShowAddModal(false)} />
+      </Show>
+
+      <Show when={showDuplicateModal()}>
+        <DuplicateCheckModal onClose={() => setShowDuplicateModal(false)} />
       </Show>
     </section>
   );

@@ -212,3 +212,52 @@ export function loadFromJsonWithMode(
       console.warn(`Unknown load mode: ${mode}`);
   }
 }
+
+export type DuplicateReport = {
+  category: string;
+  before: number;
+  after: number;
+  removed: number;
+};
+
+export function getDuplicateReport(): DuplicateReport[] {
+  const current = get();
+  const reports: DuplicateReport[] = [];
+
+  for (const [name, images] of Object.entries(current)) {
+    const seen = new Set<string>();
+    const filtered = images.filter((img) => {
+      if (!img.hash) return true;
+      if (seen.has(img.hash)) return false;
+      seen.add(img.hash);
+      return true;
+    });
+    const removed = images.length - filtered.length;
+    if (removed > 0) {
+      reports.push({ category: name, before: images.length, after: filtered.length, removed });
+    }
+  }
+
+  return reports;
+}
+
+export function removeDuplicateImages(): number {
+  const current = get();
+  let totalRemoved = 0;
+
+  for (const [name, images] of Object.entries(current)) {
+    const seen = new Set<string>();
+    const filtered = images.filter((img) => {
+      if (!img.hash) return true;
+      if (seen.has(img.hash)) return false;
+      seen.add(img.hash);
+      return true;
+    });
+    if (filtered.length !== images.length) {
+      set(name, filtered);
+      totalRemoved += images.length - filtered.length;
+    }
+  }
+
+  return totalRemoved;
+}

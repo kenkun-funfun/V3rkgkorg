@@ -1,5 +1,5 @@
 // src/components/CategoryList.tsx
-import { For, createSignal } from 'solid-js';
+import { For, createSignal, Show } from 'solid-js';
 import {
   get,
   pinnedCategories,
@@ -8,7 +8,8 @@ import {
   removeCategory,
   renameCategory,
 } from '@/stores/categoryStore';
-import { Pencil, Trash2, Pin, PinOff, Plus, UploadCloud, DownloadCloud } from 'lucide-solid';
+import { Pencil, Trash2, Pin, PinOff, Plus, UploadCloud, DownloadCloud, Bug } from 'lucide-solid';
+import DuplicateCheckModal from './DuplicateCheckModal';
 
 type Props = {
   selected: string | null;
@@ -16,12 +17,14 @@ type Props = {
   onSave: () => void;
   onLoad: () => void;
   onAddCategory: () => void;
+  onShowDuplicateModal: () => void;
 };
 
 export default function CategoryList(props: Props) {
   const [editing, setEditing] = createSignal<string | null>(null);
   const [inputValue, setInputValue] = createSignal('');
   const [filter, setFilter] = createSignal('');
+  const [showDuplicateModal, setShowDuplicateModal] = createSignal(false);
 
   const handleRename = (oldName: string) => {
     const newNameStr = inputValue().trim();
@@ -64,6 +67,14 @@ export default function CategoryList(props: Props) {
         >
           <Plus size={18} />
         </button>
+        <button
+          onClick={() => props.onShowDuplicateModal()}
+          class="p-2 rounded bg-zinc-700 hover:bg-zinc-600 text-white"
+          title="重複削除"
+        >
+          <Bug size={18} />
+        </button>
+
       </div>
       {/* 🔍 検索 */}
       <div class="flex gap-2 mb-2">

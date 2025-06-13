@@ -3,6 +3,7 @@ import { Show } from 'solid-js';
 
 type Props = {
   imageUrl: string | null;
+  preloadUrl?: string | null; // ✅ 追加
   isFlippedX: boolean;
   isFlippedY: boolean;
   filter: string; // CSSフィルター（例:"grayscale(100%)"）
@@ -21,6 +22,11 @@ export default function ImageDisplay(props: Props) {
       class="w-screen h-full flex justify-center items-center overflow-hidden bg-black"
       onClick={props.onTap}
     >
+      {/* ✅ プリロード用の透明img */}
+      {props.preloadUrl && (
+        <img src={props.preloadUrl} alt="" style={{ display: 'none' }} loading="eager" />
+      )}
+      
       <Show when={props.imageUrl} fallback={<div class="text-gray-400">画像がありません</div>}>
         <img
           src={props.imageUrl!}
