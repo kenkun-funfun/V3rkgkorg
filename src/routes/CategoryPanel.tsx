@@ -74,24 +74,29 @@ export default function CategoryPanel(props: Props) {
 
         <div class="flex-1 overflow-y-auto px-4 pb-6 space-y-2">
           <For each={filteredNames()}>{(name) => (
-            <label class="flex items-center justify-between px-2 py-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm">
-              <div class="flex items-center gap-2 overflow-hidden">
+            <div class="flex items-center justify-between px-2 py-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm">
+              {/* 左側：チェックと名前 */}
+              <label class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={props.selected?.includes(name) ?? false}
                   onChange={() => toggleSelect(name)}
                 />
                 <span class="truncate">{name}</span>
-              </div>
+              </label>
+
+              {/* 右側：ピン */}
               <button
                 onClick={() => togglePin(name)}
-                class={pinned().includes(name) ? 'text-red-500' : 'text-gray-400'}
+                class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinned().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
+                title="ピン"
               >
                 {pinned().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
               </button>
-            </label>)}
-          </For>
+            </div>
+           )}</For>
         </div>
+
         {/* 閉じるボタン */}
         <div class="border-t border-zinc-700 p-4">
           <button
