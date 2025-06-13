@@ -54,24 +54,32 @@ function createCategoryStore() {
   };
 
   const deleteCategory = (name: string) => {
-    delete categoryData[name]; // ストアからキーを削除
+    setCategoryData(name, undefined); // ❗安全な削除方法
     setPinnedCategories((prev) => prev.filter((n) => n !== name));
+
+    // ローカルストレージからも削除
     const selected = JSON.parse(localStorage.getItem('selectedCategories') || '[]');
     localStorage.setItem('selectedCategories', JSON.stringify(selected.filter((n: string) => n !== name)));
+
     const pinned = JSON.parse(localStorage.getItem('pinnedCategories') || '[]');
     localStorage.setItem('pinnedCategories', JSON.stringify(pinned.filter((n: string) => n !== name)));
   };
 
   const renameCategory = (oldName: string, newName: string) => {
     if (!newName.trim() || categoryData[newName]) return false;
-    const data = categoryData[oldName];
-    deleteCategory(oldName);
-    setCategoryData(newName, data);
+
+    const data = categoryData[oldName]; // ✅ データを先に退避
+    setCategoryData(newName, data);     // ✅ 新しい名前で先に登録
+    setCategoryData(oldName, undefined); // ✅ 元データを安全に削除
+
+    // ピン留めも更新
     if (pinnedCategories().includes(oldName)) {
-      setPinnedCategories([...pinnedCategories().filter((n) => n !== oldName), newName]);
+      setPinnedCategories((prev) => [...prev.filter((n) => n !== oldName), newName]);
     }
+
     return true;
   };
+
 
   const addImage = (category: string, image: ImageItem) => {
     if (!categoryData[category]) return;

@@ -14,6 +14,8 @@ import CategoryList from '@/components/CategoryList';
 import ImageManager from '@/components/ImageManager';
 import SaveModal from '@/components/SaveModal';
 import LoadModal from '@/components/LoadModal';
+import CategoryAddModal from '@/components/CategoryAddModal';
+import { addCategory } from '@/stores/categoryStore';
 import { categoryData, setCategoryData, addImage, removeImage } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils'; // ← パスを合わせて
 import { addToast } from '@/components/Toast';
@@ -37,6 +39,7 @@ export default function PlayScreen() {
   const [showDeletePanel, setShowDeletePanel] = createSignal(false);
   const [showSaveModal, setShowSaveModal] = createSignal(false);  // ✅ 追加
   const [showLoadModal, setShowLoadModal] = createSignal(false);  // ✅ 追加
+  const [showAddModal, setShowAddModal] = createSignal(false);
   const currentImage = () => playList()[imageIndex()];
 
   let timer: NodeJS.Timeout | null = null;
@@ -336,6 +339,7 @@ export default function PlayScreen() {
                 onSelect={(name) => setSelectedCategories([name])}
                 onSave={() => setShowSaveModal(true)}
                 onLoad={() => setShowLoadModal(true)}
+                onAddCategory={() => setShowAddModal(true)} // ✅ 追加
               />
             </div>
             <div class="flex-1 h-[55vh] md:h-auto overflow-y-auto p-4">
@@ -372,6 +376,10 @@ export default function PlayScreen() {
 
       <Show when={showLoadModal()}>
         <LoadModal onLoad={(data) => setCategoryData(data)} onClose={() => setShowLoadModal(false)} />
+      </Show>
+
+      <Show when={showAddModal()}>
+        <CategoryAddModal onAdd={addCategory} onClose={() => setShowAddModal(false)} />
       </Show>
     </section>
   );

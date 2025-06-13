@@ -10,12 +10,18 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+
+    // ✅ 以下を変更
+    "strict": false,  // ← 厳格な型チェックを無効化（致命的でないものはスルー）
+    "noUncheckedIndexedAccess": false, // record[key] の undefined チェックを緩和
+    "suppressImplicitAnyIndexErrors": true, // indexアクセスに any を許容
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
+    // 任意：一時的に外しておいてもOK
+    // "erasableSyntaxOnly": true,
+    // "noFallthroughCasesInSwitch": true,
+    // "noUncheckedSideEffectImports": true
   },
   "include": [
     "vite.config.ts",

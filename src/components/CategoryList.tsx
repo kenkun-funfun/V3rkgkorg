@@ -66,6 +66,13 @@ export default function CategoryList(props: Props) {
         >
           <DownloadCloud size={18} />
         </button>
+        <button
+          onClick={() => props.onAddCategory()}
+          class="p-2 rounded bg-zinc-700 hover:bg-zinc-600 text-white"
+          title="カテゴリ追加"
+        >
+          <Plus size={18} />
+        </button>
       </div>
       {/* 🔍 検索＋追加 */}
       <div class="flex gap-2 mb-2">
@@ -76,19 +83,6 @@ export default function CategoryList(props: Props) {
           value={filter()}
           onInput={(e) => setFilter(e.currentTarget.value)}
         />
-        <input
-          type="text"
-          placeholder="新しいカテゴリ名"
-          class="w-32 p-2 rounded border border-zinc-300 dark:border-zinc-600 dark:bg-zinc-700 text-black dark:text-white"
-          value={newName()}
-          onInput={(e) => setNewName(e.currentTarget.value)}
-        />
-        <button
-          onClick={handleAdd}
-          class="px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-sm"
-        >
-          <Plus size={16} />
-        </button>
       </div>
 
       <For each={allCategories()}>
