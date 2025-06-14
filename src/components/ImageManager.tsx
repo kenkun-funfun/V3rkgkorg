@@ -53,6 +53,7 @@ export default function ImageManager(props: Props) {
       setProgressText(`${i + 1} / ${files.length} 処理中…`);
     }
     if (!aborted()) setProgressText('✅ 完了しました！');
+    setTimeout(() => setShowProgress(false), 2000); // ✅ 自動で閉じる
   };
 
   const handleDrop = (e: DragEvent) => {

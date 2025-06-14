@@ -62,15 +62,26 @@ function createCategoryStore() {
     localStorage.setItem('pinnedCategories', JSON.stringify(pinned.filter((n: string) => n !== name)));
   };
 
-
   const renameCategory = (oldName: string, newName: string): boolean => {
     if (!newName.trim() || categoryData[newName]) return false;
     const data = categoryData[oldName];
     setCategoryData(newName, data);
     (setCategoryData as any)(oldName, undefined);
+
+    // ピン状態更新
     if (pinnedCategories().includes(oldName)) {
       setPinnedCategories([...pinnedCategories().filter((n) => n !== oldName), newName]);
     }
+
+    // ローカルストレージの selected を更新
+    const selected = JSON.parse(localStorage.getItem('selectedCategories') || '[]');
+    const updatedSelected = selected.map((n: string) => (n === oldName ? newName : n));
+    localStorage.setItem('selectedCategories', JSON.stringify(updatedSelected));
+
+    const pinned = JSON.parse(localStorage.getItem('pinnedCategories') || '[]');
+    const updatedPinned = pinned.map((n: string) => (n === oldName ? newName : n));
+    localStorage.setItem('pinnedCategories', JSON.stringify(updatedPinned));
+
     return true;
   };
 
@@ -89,8 +100,10 @@ function createCategoryStore() {
 
   const clearAll = () => {
     setCategoryData({});
+    setPinnedCategories([]);
+    localStorage.removeItem('selectedCategories');
+    localStorage.removeItem('pinnedCategories');
   };
-
   const loadFromJson = (raw: any) => {
     const normalized = normalizeRawData(raw);
     setCategoryData(normalized);

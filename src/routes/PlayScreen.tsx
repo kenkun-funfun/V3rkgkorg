@@ -350,6 +350,7 @@ export default function PlayScreen() {
               />
             </div>
             <div class="flex-1 h-[55vh] md:h-auto overflow-y-auto p-4">
+              {console.log('selectedCategories:', selectedCategories())}
               <Show when={selectedCategories()[0]}>
                 <ImageManager
                   categoryName={selectedCategories()[0]}
