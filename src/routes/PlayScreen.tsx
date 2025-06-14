@@ -16,6 +16,7 @@ import SaveModal from '@/components/SaveModal';
 import LoadModal from '@/components/LoadModal';
 import CategoryAddModal from '@/components/CategoryAddModal';
 import DuplicateCheckModal from '@/components/DuplicateCheckModal';
+import HistoryModal from '@/components/HistoryModal';
 import {
   get,
   loadFromJson,
@@ -48,7 +49,9 @@ export default function PlayScreen() {
   const [showLoadModal, setShowLoadModal] = createSignal(false);
   const [showAddModal, setShowAddModal] = createSignal(false);
   const [showDuplicateModal, setShowDuplicateModal] = createSignal(false);
+  const [showHistoryModal, setShowHistoryModal] = createSignal(false);
 
+  const [playHistory, setPlayHistory] = createSignal<string[]>([]);
   const currentImage = () => playList()[imageIndex()];
   const currentIndex = () => imageIndex();
   const totalCount = () => playList().length;
@@ -98,6 +101,7 @@ export default function PlayScreen() {
 
     setPanelSelectedCategories(selected);
     setPlayList(finalList.filter((v): v is string => typeof v === 'string'));
+    setPlayHistory(finalList);
     setImageIndex(0);
     setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
     setShowCategoryPanel(false);
@@ -235,14 +239,16 @@ export default function PlayScreen() {
       class="w-screen overflow-hidden"
       style={{ height: '100dvh' }}
     >      <Show when={viewMode() === 'play'}>
-        <div class="h-full w-full flex flex-col overflow-hidden bg-white text-black dark:bg-black dark:text-white relative">          <Header
-          mode={mode()}
-          timeLeft={timeLeft()}
-          onOpenCategoryManager={() => setViewMode('manage')}
-          onReset={handleReset}
-          currentIndex={currentIndex()}
-          totalCount={totalCount()}
-        />
+        <div class="h-full w-full flex flex-col overflow-hidden bg-white text-black dark:bg-black dark:text-white relative">
+          <Header
+            mode={mode()}
+            timeLeft={timeLeft()}
+            onOpenCategoryManager={() => setViewMode('manage')}
+            onReset={handleReset}
+            currentIndex={currentIndex()}
+            totalCount={totalCount()}
+            onShowHistory={() => setShowHistoryModal(true)} // ✅ 追加
+          />
           <main
             class="flex-1 flex justify-center items-center overflow-hidden px-4 py-2 relative"
             onClick={(e) => {
@@ -354,20 +360,20 @@ export default function PlayScreen() {
                   images={get()[currentCategory()] || []}
                   onAdd={async (files) => {
                     const name = currentCategory();
-                     if (!name) return;
-                     for (const file of files) {
-                       const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
-                       const hash = await generateHash(base64);
-                       addImage(name, { base64, hash });
-                     }
-                   }}
+                    if (!name) return;
+                    for (const file of files) {
+                      const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
+                      const hash = await generateHash(base64);
+                      addImage(name, { base64, hash });
+                    }
+                  }}
                   onDelete={(index) => {
                     const name = currentCategory();
-                     if (!name) return;
-                     removeImage(name, index);
-                   }}
-                 />
-               </Show>
+                    if (!name) return;
+                    removeImage(name, index);
+                  }}
+                />
+              </Show>
             </div>
           </div>
         </div>
@@ -388,6 +394,14 @@ export default function PlayScreen() {
       <Show when={showDuplicateModal()}>
         <DuplicateCheckModal onClose={() => setShowDuplicateModal(false)} />
       </Show>
+
+      <Show when={showHistoryModal()}>
+        <HistoryModal
+          images={playHistory()}
+          onClose={() => setShowHistoryModal(false)}
+        />
+      </Show>
+
     </section>
   );
 }
