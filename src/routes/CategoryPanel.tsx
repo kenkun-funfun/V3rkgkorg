@@ -46,7 +46,7 @@ export default function CategoryPanel(props: Props) {
 
   return (
     <Show when={props.isOpen}>
-      <aside class="absolute right-0 top-0 max-h-[100dvh] pb-[100px] w-full z-50 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-lg border-l border-zinc-700 flex flex-col overflow-hidden">
+      <aside class="absolute right-0 top-0 max-h-[100dvh] pb-[100px] w-full sm:w-[480px] z-50 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-lg border-l border-zinc-700 flex flex-col overflow-hidden">
         <div class="flex items-center justify-between px-4 py-2 border-b border-zinc-700">
           <h2 class="font-bold">カテゴリ</h2>
           <button onClick={props.onClose}><X size={18} /></button>
