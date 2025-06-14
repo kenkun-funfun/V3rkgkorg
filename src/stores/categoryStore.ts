@@ -1,9 +1,8 @@
 // src/stores/categoryStore.ts
+import { createSignal, createRoot, onMount } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { createSignal, createRoot } from 'solid-js';
 import rawExample from '@/data/example.json';
 import { extractHash } from '@/lib/utils';
-import { set, get, deleteCategory } from '@/stores/categoryStore';
 
 export type ImageItem = {
   base64?: string;
@@ -41,9 +40,37 @@ function normalizeRawData(raw: any): CategoryData {
   throw new Error("不明なJSON形式");
 }
 
+const PINNED_KEY = 'pinnedCategories';
+const PANEL_SELECTED_KEY = 'panelSelectedCategories';
+
+function getLocal<T>(key: string): T {
+  try {
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  } catch {
+    return [] as unknown as T;
+  }
+}
+
+function setLocal(key: string, value: any) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
 function createCategoryStore() {
   const [categoryData, setCategoryData] = createStore<CategoryData>(normalizeRawData(rawExample));
-  const [pinnedCategories, setPinnedCategories] = createSignal<string[]>([]);
+
+  const [panelSelectedCategories, _setPanelSelectedCategories] = createSignal<string[]>(getLocal(PANEL_SELECTED_KEY));
+  const setPanelSelectedCategories = (value: string[]) => {
+    _setPanelSelectedCategories(value);
+    setLocal(PANEL_SELECTED_KEY, value);
+  };
+
+  const [pinnedCategories, _setPinnedCategories] = createSignal<string[]>(getLocal(PINNED_KEY));
+  const setPinnedCategories = (value: string[]) => {
+    _setPinnedCategories(value);
+    setLocal(PINNED_KEY, value);
+  };
+
+  const [currentCategory, setCurrentCategory] = createSignal<string | null>(null);
 
   const get = () => categoryData;
 
@@ -56,10 +83,8 @@ function createCategoryStore() {
   const removeCategory = (name: string): void => {
     (setCategoryData as any)(name, undefined);
     setPinnedCategories(pinnedCategories().filter((n) => n !== name));
-    const selected = JSON.parse(localStorage.getItem('selectedCategories') || '[]');
-    localStorage.setItem('selectedCategories', JSON.stringify(selected.filter((n: string) => n !== name)));
-    const pinned = JSON.parse(localStorage.getItem('pinnedCategories') || '[]');
-    localStorage.setItem('pinnedCategories', JSON.stringify(pinned.filter((n: string) => n !== name)));
+    setPanelSelectedCategories(panelSelectedCategories().filter((n) => n !== name));
+    if (currentCategory() === name) setCurrentCategory(null);
   };
 
   const renameCategory = (oldName: string, newName: string): boolean => {
@@ -68,27 +93,22 @@ function createCategoryStore() {
     setCategoryData(newName, data);
     (setCategoryData as any)(oldName, undefined);
 
-    // ピン状態更新
     if (pinnedCategories().includes(oldName)) {
       setPinnedCategories([...pinnedCategories().filter((n) => n !== oldName), newName]);
     }
 
-    // ローカルストレージの selected を更新
-    const selected = JSON.parse(localStorage.getItem('selectedCategories') || '[]');
-    const updatedSelected = selected.map((n: string) => (n === oldName ? newName : n));
-    localStorage.setItem('selectedCategories', JSON.stringify(updatedSelected));
+    if (panelSelectedCategories().includes(oldName)) {
+      setPanelSelectedCategories([...panelSelectedCategories().filter((n) => n !== oldName), newName]);
+    }
 
-    const pinned = JSON.parse(localStorage.getItem('pinnedCategories') || '[]');
-    const updatedPinned = pinned.map((n: string) => (n === oldName ? newName : n));
-    localStorage.setItem('pinnedCategories', JSON.stringify(updatedPinned));
+    if (currentCategory() === oldName) setCurrentCategory(newName);
 
     return true;
   };
 
   const addImage = (category: string, image: ImageItem) => {
     if (!categoryData[category]) return;
-    const prev = categoryData[category];
-    setCategoryData(category, [...prev, image]);
+    setCategoryData(category, [...categoryData[category], image]);
   };
 
   const removeImage = (category: string, index: number) => {
@@ -101,9 +121,12 @@ function createCategoryStore() {
   const clearAll = () => {
     setCategoryData({});
     setPinnedCategories([]);
-    localStorage.removeItem('selectedCategories');
-    localStorage.removeItem('pinnedCategories');
+    setPanelSelectedCategories([]);
+    setLocal(PINNED_KEY, []);
+    setLocal(PANEL_SELECTED_KEY, []);
+    setCurrentCategory(null);
   };
+
   const loadFromJson = (raw: any) => {
     const normalized = normalizeRawData(raw);
     setCategoryData(normalized);
@@ -118,10 +141,14 @@ function createCategoryStore() {
     };
   };
 
+  const validKeys = Object.keys(categoryData);
+  setPanelSelectedCategories(panelSelectedCategories().filter((name) => validKeys.includes(name)));
+  setPinnedCategories(pinnedCategories().filter((name) => validKeys.includes(name)));
+  if (currentCategory() && !validKeys.includes(currentCategory()!)) setCurrentCategory(null);
+
   return {
     get,
     set: setCategoryData,
-    deleteCategory: removeCategory,
     addCategory,
     removeCategory,
     renameCategory,
@@ -132,13 +159,16 @@ function createCategoryStore() {
     toJson,
     pinnedCategories,
     setPinnedCategories,
+    panelSelectedCategories,
+    setPanelSelectedCategories,
+    currentCategory,
+    setCurrentCategory,
   };
 }
 
 export const {
   get,
   set,
-  deleteCategory,
   addCategory,
   removeCategory,
   renameCategory,
@@ -149,12 +179,14 @@ export const {
   toJson,
   pinnedCategories,
   setPinnedCategories,
+  panelSelectedCategories,
+  setPanelSelectedCategories,
+  currentCategory,
+  setCurrentCategory,
 } = createRoot(createCategoryStore);
 
 export type { CategoryData };
 export { normalizeRawData };
-
-// 差分: 末尾あたりに以下を追加
 
 export type MergeMode =
   | 'overwrite'
@@ -184,7 +216,7 @@ export function loadFromJsonWithMode(
     case 'delete-add':
       for (let i = 0; i < entries.length; i++) {
         const [name, images] = entries[i];
-        if (current[name]) deleteCategory(name);
+        if (current[name]) removeCategory(name);
         set(name, images);
         onProgress?.(i + 1, entries.length);
       }
@@ -213,7 +245,7 @@ export function loadFromJsonWithMode(
       break;
 
     case 'reset-and-load':
-      Object.keys(current).forEach(deleteCategory);
+      Object.keys(current).forEach(removeCategory);
       for (let i = 0; i < entries.length; i++) {
         const [name, images] = entries[i];
         set(name, images);

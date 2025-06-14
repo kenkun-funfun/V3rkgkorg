@@ -7,6 +7,8 @@ import {
   addCategory,
   removeCategory,
   renameCategory,
+  currentCategory,
+  setCurrentCategory,
 } from '@/stores/categoryStore';
 import { Pencil, Trash2, Pin, PinOff, Plus, UploadCloud, DownloadCloud, Bug } from 'lucide-solid';
 import DuplicateCheckModal from './DuplicateCheckModal';
@@ -74,8 +76,8 @@ export default function CategoryList(props: Props) {
         >
           <Bug size={18} />
         </button>
-
       </div>
+
       {/* 🔍 検索 */}
       <div class="flex gap-2 mb-2">
         <input

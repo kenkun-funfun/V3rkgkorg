@@ -2,54 +2,44 @@
 
 import { createSignal, For, Show } from 'solid-js';
 import { X, Pin, PinOff } from 'lucide-solid';
-import { get } from '@/stores/categoryStore';
+import {
+  get,
+  panelSelectedCategories,
+  setPanelSelectedCategories,
+  pinnedCategories,
+  setPinnedCategories
+} from '@/stores/categoryStore';
 
 type Props = {
-  selected: string[];
-  setSelected: (value: string[]) => void;
   isOpen: boolean;
   onClose: () => void;
 };
 
-const pinnedKey = 'pinnedCategories';
-
 export default function CategoryPanel(props: Props) {
-  const [pinned, setPinned] = createSignal<string[]>(
-    typeof window !== 'undefined'
-      ? JSON.parse(localStorage.getItem(pinnedKey) || '[]')
-      : []
-  );
   const [search, setSearch] = createSignal('');
 
   const togglePin = (name: string) => {
-    const next = pinned().includes(name)
-      ? pinned().filter((n) => n !== name)
-      : [...pinned(), name];
-    setPinned(next);
-    // ✅ categoryData に存在するものだけ保存
-    const valid = next.filter((n) => get()[n]);
-    localStorage.setItem(pinnedKey, JSON.stringify(valid));
+    const next = pinnedCategories().includes(name)
+      ? pinnedCategories().filter((n) => n !== name)
+      : [...pinnedCategories(), name];
+    setPinnedCategories(next);
   };
 
   const toggleSelect = (name: string) => {
-    const current = props.selected ?? [];
+    const current = panelSelectedCategories();
     const updated = current.includes(name)
       ? current.filter((n) => n !== name)
       : [...current, name];
-    props.setSelected(updated);
-    // ✅ categoryData に存在するものだけ保存
-    const valid = updated.filter((n) => get()[n]);
-    localStorage.setItem('selectedCategories', JSON.stringify(valid));
+    setPanelSelectedCategories(updated);
   };
-
 
   const filteredNames = () => {
     const all = Object.keys(get());
     const query = search().toLowerCase();
     return [
-      ...pinned().filter((n) => all.includes(n) && n.toLowerCase().includes(query)),
+      ...pinnedCategories().filter((n) => all.includes(n) && n.toLowerCase().includes(query)),
       ...all
-        .filter((n) => !pinned().includes(n) && n.toLowerCase().includes(query))
+        .filter((n) => !pinnedCategories().includes(n) && n.toLowerCase().includes(query))
         .sort(),
     ];
   };
@@ -79,7 +69,7 @@ export default function CategoryPanel(props: Props) {
               <label class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={props.selected?.includes(name) ?? false}
+                  checked={panelSelectedCategories().includes(name)}
                   onChange={() => toggleSelect(name)}
                 />
                 <span class="truncate">{name}</span>
@@ -88,13 +78,13 @@ export default function CategoryPanel(props: Props) {
               {/* 右側：ピン */}
               <button
                 onClick={() => togglePin(name)}
-                class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinned().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
+                class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
                 title="ピン"
               >
-                {pinned().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
+                {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
               </button>
             </div>
-           )}</For>
+          )}</For>
         </div>
 
         {/* 閉じるボタン */}

@@ -16,19 +16,24 @@ import SaveModal from '@/components/SaveModal';
 import LoadModal from '@/components/LoadModal';
 import CategoryAddModal from '@/components/CategoryAddModal';
 import DuplicateCheckModal from '@/components/DuplicateCheckModal';
-
-import { addCategory } from '@/stores/categoryStore';
-import { get, loadFromJson, addImage, removeImage } from '@/stores/categoryStore';
-import { resizeAndConvertToBase64, generateHash } from '@/lib/utils'; // ← パスを合わせて
+import {
+  get,
+  loadFromJson,
+  addImage,
+  removeImage,
+  addCategory,
+  panelSelectedCategories,
+  setPanelSelectedCategories,
+  currentCategory,
+  setCurrentCategory,
+} from '@/stores/categoryStore';
+import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 import { addToast } from '@/components/Toast';
-
-
 
 export default function PlayScreen() {
   const [viewMode, setViewMode] = createSignal<'play' | 'manage'>('play');
 
   const [mode, setMode] = createSignal<ModeType>(MODE.START_SCREEN);
-  const [selectedCategories, setSelectedCategories] = createSignal<string[]>([]);
   const [playList, setPlayList] = createSignal<string[]>([]);
   const [imageIndex, setImageIndex] = createSignal<number>(0);
   const [isFlippedX, setIsFlippedX] = createSignal(false);
@@ -39,8 +44,8 @@ export default function PlayScreen() {
   const [showCategoryPanel, setShowCategoryPanel] = createSignal(false);
   const [showFilterPanel, setShowFilterPanel] = createSignal(false);
   const [showDeletePanel, setShowDeletePanel] = createSignal(false);
-  const [showSaveModal, setShowSaveModal] = createSignal(false);  // ✅ 追加
-  const [showLoadModal, setShowLoadModal] = createSignal(false);  // ✅ 追加
+  const [showSaveModal, setShowSaveModal] = createSignal(false);
+  const [showLoadModal, setShowLoadModal] = createSignal(false);
   const [showAddModal, setShowAddModal] = createSignal(false);
   const [showDuplicateModal, setShowDuplicateModal] = createSignal(false);
 
@@ -87,12 +92,11 @@ export default function PlayScreen() {
       return images.map((img) => img.base64 || img.url).filter(Boolean);
     });
 
-
     const shuffled = shuffle ? [...allImages].sort(() => Math.random() - 0.5) : allImages;
     const max = parseInt(localStorage.getItem('maxPlays') || '100');
     const finalList = (shuffled.slice(0, max)).filter(Boolean);
 
-    setSelectedCategories(selected);
+    setPanelSelectedCategories(selected);
     setPlayList(finalList.filter((v): v is string => typeof v === 'string'));
     setImageIndex(0);
     setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
@@ -180,7 +184,6 @@ export default function PlayScreen() {
     const current = currentImage();
     if (!current) return;
 
-    // categoryData から画像を削除
     for (const [cat, entry] of Object.entries(get())) {
       const idx = entry.findIndex((img) => (img.base64 || img.url) === current);
       if (idx !== -1) {
@@ -189,12 +192,10 @@ export default function PlayScreen() {
       }
     }
 
-    // playList からも削除
     const updated = [...playList()];
     updated.splice(imageIndex(), 1);
     setPlayList(updated);
 
-    // index調整
     if (imageIndex() >= updated.length) {
       setImageIndex(Math.max(0, updated.length - 1));
     }
@@ -270,8 +271,6 @@ export default function PlayScreen() {
             }>
               <WaitPanel
                 setMode={setMode}
-                selectedCategories={selectedCategories()}
-                setSelectedCategories={setSelectedCategories}
                 onStart={startPlayback}
                 onToggleCategoryPanel={handleToggleCategoryPanel}
               />
@@ -286,8 +285,6 @@ export default function PlayScreen() {
             <CategoryPanel
               isOpen={showCategoryPanel()}
               onClose={() => setShowCategoryPanel(false)}
-              selected={selectedCategories()}
-              setSelected={setSelectedCategories}
             />
 
             <Show when={showFilterPanel()}>
@@ -341,8 +338,8 @@ export default function PlayScreen() {
 
             <div class="w-full md:w-1/3 h-[45vh] md:h-auto border-r border-zinc-700 overflow-y-auto p-4">
               <CategoryList
-                selected={selectedCategories()[0] || null}
-                onSelect={(name) => setSelectedCategories([name])}
+                selected={currentCategory()}
+                onSelect={(name) => setCurrentCategory(name)}
                 onSave={() => setShowSaveModal(true)}
                 onLoad={() => setShowLoadModal(true)}
                 onAddCategory={() => setShowAddModal(true)} // ✅ 追加
@@ -350,29 +347,27 @@ export default function PlayScreen() {
               />
             </div>
             <div class="flex-1 h-[55vh] md:h-auto overflow-y-auto p-4">
-              {console.log('selectedCategories:', selectedCategories())}
-              <Show when={selectedCategories()[0]}>
+
+              <Show when={currentCategory()}>
                 <ImageManager
-                  categoryName={selectedCategories()[0]}
-                  images={get()[selectedCategories()[0]] || []}
+                  categoryName={currentCategory()}
+                  images={get()[currentCategory()] || []}
                   onAdd={async (files) => {
-                    const name = selectedCategories()[0];
-                    if (!name) return;
-                    for (const file of files) {
-                      const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
-                      const hash = await generateHash(base64);
-                      addImage(name, { base64, hash });
-                    }
-                  }}
+                    const name = currentCategory();
+                     if (!name) return;
+                     for (const file of files) {
+                       const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
+                       const hash = await generateHash(base64);
+                       addImage(name, { base64, hash });
+                     }
+                   }}
                   onDelete={(index) => {
-                    const name = selectedCategories()[0];
-                    if (!name) return;
-                    removeImage(name, index);
-                  }}
-                />
-
-
-              </Show>
+                    const name = currentCategory();
+                     if (!name) return;
+                     removeImage(name, index);
+                   }}
+                 />
+               </Show>
             </div>
           </div>
         </div>

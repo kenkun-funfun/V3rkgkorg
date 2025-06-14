@@ -2,11 +2,10 @@
 import { createSignal, onMount, For } from 'solid-js';
 import type { Setter } from 'solid-js';
 import type { ModeType } from '@/lib/constants';
+import { panelSelectedCategories } from '@/stores/categoryStore';
 
 type Props = {
   setMode: Setter<ModeType>;
-  selectedCategories: string[];
-  setSelectedCategories: (value: string[]) => void;
   onStart: (selected: string[]) => void;
   onToggleCategoryPanel: () => void;
 };
@@ -39,16 +38,15 @@ export default function WaitPanel(props: Props) {
     if (t) setTapEnabled(t === 'true');
     const m = localStorage.getItem('maxPlays');
     if (m) setMaxPlays(parseInt(m));
-    const c = localStorage.getItem('selectedCategories');
-    if (c) props.setSelectedCategories(JSON.parse(c));
   });
 
   const handleStart = () => {
-    if (props.selectedCategories.length === 0) {
+    const selected = panelSelectedCategories();
+    if (selected.length === 0) {
       alert('カテゴリを選択してください');
       return;
     }
-    props.onStart(props.selectedCategories);
+    props.onStart(selected);
   };
 
   return (
@@ -64,7 +62,6 @@ export default function WaitPanel(props: Props) {
             カテゴリを選択する
           </button>
         </div>
-
 
         {/* タイマー設定 */}
         <div>

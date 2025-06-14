@@ -1,19 +1,15 @@
 // src/components/ImageManager.tsx
 import { createSignal, For, Show } from 'solid-js';
 import { Trash2, UploadCloud } from 'lucide-solid';
-import { addImage, removeImage } from '@/stores/categoryStore';
+import { addImage, removeImage, currentCategory } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 import UploadProgressModal from './UploadProgressModal';
+import { get } from '@/stores/categoryStore';
 
 const [isDragOver, setIsDragOver] = createSignal(false);
 const [sortOrder, setSortOrder] = createSignal<'asc' | 'desc'>('asc');
 
-type Props = {
-  categoryName: string;
-  images: { url?: string; base64?: string; hash: string }[];
-};
-
-export default function ImageManager(props: Props) {
+export default function ImageManager() {
   const [perPage, setPerPage] = createSignal(12);
   const [currentPage, setCurrentPage] = createSignal(1);
 
@@ -21,17 +17,24 @@ export default function ImageManager(props: Props) {
   const [progressText, setProgressText] = createSignal('');
   const [aborted, setAborted] = createSignal(false);
 
-  const totalPages = () => Math.ceil(props.images.length / perPage());
+  const images = () => {
+    const category = currentCategory();
+    if (!category) return [];
+    const data = get();
+    return data[category] || [];
+  };
+
+  const totalPages = () => Math.ceil(images().length / perPage());
 
   const paginatedImages = () => {
     const start = (currentPage() - 1) * perPage();
-    const sorted = [...props.images];
+    const sorted = [...images()];
     if (sortOrder() === 'desc') sorted.reverse();
     return sorted.slice(start, start + perPage());
   };
 
-  const handleFiles = async (name: string, files: File[]) => {
-
+  const handleFiles = async (files: File[]) => {
+    const name = currentCategory();
     if (!name) {
       alert('カテゴリが選択されていません');
       return;
@@ -53,7 +56,7 @@ export default function ImageManager(props: Props) {
       setProgressText(`${i + 1} / ${files.length} 処理中…`);
     }
     if (!aborted()) setProgressText('✅ 完了しました！');
-    setTimeout(() => setShowProgress(false), 2000); // ✅ 自動で閉じる
+    setTimeout(() => setShowProgress(false), 2000);
   };
 
   const handleDrop = (e: DragEvent) => {
@@ -61,7 +64,7 @@ export default function ImageManager(props: Props) {
     const files = Array.from(e.dataTransfer?.files || []).filter((f) =>
       f.type.startsWith('image/')
     );
-    handleFiles(props.categoryName, files);
+    handleFiles(files);
   };
 
   const handleBrowse = () => {
@@ -71,7 +74,7 @@ export default function ImageManager(props: Props) {
     input.accept = 'image/*';
     input.onchange = () => {
       if (input.files) {
-        handleFiles(props.categoryName, Array.from(input.files));
+        handleFiles(Array.from(input.files));
       }
     };
     input.click();
@@ -86,7 +89,6 @@ export default function ImageManager(props: Props) {
         onClose={() => setShowProgress(false)}
       />
 
-      {/* ドロップゾーン */}
       <div
         class={`rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-all
           ${isDragOver()
@@ -115,7 +117,6 @@ export default function ImageManager(props: Props) {
         </div>
       </div>
 
-      {/* 表示数切替 */}
       <div class="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
         <div class="flex items-center gap-2">
           <span>表示件数:</span>
@@ -144,7 +145,6 @@ export default function ImageManager(props: Props) {
         </div>
       </div>
 
-      {/* 画像グリッド */}
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <For each={paginatedImages()}>
           {(img, index) => {
@@ -159,7 +159,10 @@ export default function ImageManager(props: Props) {
                 />
                 <button
                   class="absolute top-1 right-1 bg-red-600 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition"
-                  onClick={() => removeImage(props.categoryName, globalIndex)}
+                  onClick={() => {
+                    const name = currentCategory();
+                    if (name) removeImage(name, globalIndex);
+                  }}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -169,7 +172,6 @@ export default function ImageManager(props: Props) {
         </For>
       </div>
 
-      {/* ページネーション */}
       <Show when={totalPages() > 1}>
         <div class="flex justify-center items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
           <button
