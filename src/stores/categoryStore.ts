@@ -261,3 +261,15 @@ export function removeDuplicateImages(): number {
 
   return totalRemoved;
 }
+
+export function toJsonForCategory(name: string) {
+  const all = get();
+  const images = all[name];
+  if (!images) throw new Error(`カテゴリ「${name}」が存在しません`);
+  return {
+    version: 'v1',
+    data: {
+      [name]: { images }
+    }
+  };
+}

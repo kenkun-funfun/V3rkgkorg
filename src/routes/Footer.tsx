@@ -16,8 +16,9 @@ import {
 } from 'lucide-solid';
 import { getToggleButtonClasses, getIconColor } from '@/styles/buttonStates';
 import { Sun, Moon } from 'lucide-solid';
-import { theme, toggleTheme } from '@/stores/themeStore'; // ✅ ストア読み込み
+import { themeStore } from '@/stores/themeStore';
 
+const { theme, toggleTheme } = themeStore;
 
 type Props = {
   mode: ModeType;
@@ -39,46 +40,73 @@ export default function Footer(props: Props) {
     <div class="w-full px-4 py-4 space-y-4">
       {/* RUNNING or PAUSED → 操作ボタン2段 */}
       <Show when={props.mode === MODE.RUNNING || props.mode === MODE.PAUSED}>
-        <div class="flex justify-center gap-4">
-          <button onClick={props.onPrev} class="p-2 rounded border border-white hover:bg-white/10">
-            <SkipBack />
-          </button>
-          <button
-            onClick={props.onTogglePause}
-            class={`p-2 rounded border ${props.mode === MODE.PAUSED
-              ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
-              : 'border-white hover:bg-white/10'
-              }`}
-          >
-            {props.mode === MODE.RUNNING ? <Pause /> : <Play />}
-          </button>
-          <button onClick={props.onNext} class="p-2 rounded border border-white hover:bg-white/10">
-            <SkipForward />
-          </button>
-          <button onClick={props.onReset} class="p-2 rounded border border-white hover:bg-white/10">
-            <Repeat />
-          </button>
-        </div>
+        <div class="flex flex-col md:flex-row justify-center gap-4">
+          {/* 上段ボタン（再生制御） */}
+          <div class="flex justify-center gap-4 w-full md:w-auto">
+            <button
+              onClick={props.onPrev}
+              class="w-full md:w-auto flex-1 p-2 rounded border border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20"
+            >
+              <SkipBack />
+            </button>
+            <button
+              onClick={props.onTogglePause}
+              class={`w-full md:w-auto flex-1 p-2 rounded border ${props.mode === MODE.PAUSED
+                ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
+                : 'border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20'
+                }`}
+            >
+              {props.mode === MODE.RUNNING ? <Pause /> : <Play />}
+            </button>
+            <button
+              onClick={props.onNext}
+              class="w-full md:w-auto flex-1 p-2 rounded border border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20"
+            >
+              <SkipForward />
+            </button>
+            <button
+              onClick={props.onReset}
+              class="w-full md:w-auto flex-1 p-2 rounded border border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20"
+            >
+              <Repeat />
+            </button>
+          </div>
 
-        <div class="flex justify-center gap-4">
-          <button
-            onClick={props.onFlipX}
-            class={getToggleButtonClasses(props.isFlippedX)}
-          >
-            <FlipHorizontal class={getIconColor(props.isFlippedX)} />
-          </button>
-          <button
-            onClick={props.onFlipY}
-            class={getToggleButtonClasses(props.isFlippedY)}
-          >
-            <FlipVertical class={getIconColor(props.isFlippedY)} />
-          </button>
-          <button onClick={props.onFilterToggle} class="p-2 rounded border border-white hover:bg-white/10">
-            <Settings />
-          </button>
-          <button onClick={props.onDelete} class="p-2 rounded border border-white hover:bg-white/10">
-            <Trash />
-          </button>
+          {/* 下段ボタン（表示制御） */}
+          <div class="flex justify-center gap-4 mt-4 md:mt-0 w-full md:w-auto">
+            <button
+              onClick={props.onFlipX}
+              class={`w-full md:w-auto flex-1 p-2 rounded border ${props.isFlippedX
+                  ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20'
+                }`}
+            >
+              <FlipHorizontal />
+            </button>
+
+            <button
+              onClick={props.onFlipY}
+              class={`w-full md:w-auto flex-1 p-2 rounded border ${props.isFlippedY
+                  ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20'
+                }`}
+            >
+              <FlipVertical />
+            </button>
+
+            <button
+              onClick={props.onFilterToggle}
+              class="w-full md:w-auto flex-1 p-2 rounded border border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20"
+            >
+              <Settings />
+            </button>
+            <button
+              onClick={props.onDelete}
+              class="w-full md:w-auto flex-1 p-2 rounded border border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20"
+            >
+              <Trash />
+            </button>
+          </div>
         </div>
       </Show>
 

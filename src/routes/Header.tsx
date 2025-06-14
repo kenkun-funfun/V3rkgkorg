@@ -38,13 +38,13 @@ const Header: Component<Props> = (props) => {
         {props.mode !== 'START_SCREEN' && (
           <>
             <Timer size={16} />
-            <span>残り {formatTime(props.timeLeft)}</span>
+            <span class="select-none">残り {formatTime(props.timeLeft)}</span>
           </>
         )}
       </div>
       {/* 再生中の枚数表示 */}
       <Show when={props.mode === MODE.RUNNING && props.totalCount}>
-        <span class="text-xs text-white dark:text-zinc-300 ml-2">
+        <span class="text-xs text-white dark:text-zinc-300 ml-2 select-none">
           {props.currentIndex! + 1} / {props.totalCount}
         </span>
       </Show>

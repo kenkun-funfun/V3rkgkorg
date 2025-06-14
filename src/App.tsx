@@ -3,6 +3,10 @@
 import { Router, Route } from '@solidjs/router';
 import PlayScreen from './routes/PlayScreen';
 import Toast from './components/Toast';
+import { themeStore } from './stores/themeStore'; // ✅ 追加（副作用発動）
+
+// 呼び出すだけで副作用実行
+themeStore;
 
 export default function App() {
   return (

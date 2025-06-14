@@ -28,6 +28,12 @@ export default function ImageManager(props: Props) {
   };
 
   const handleFiles = async (name: string, files: File[]) => {
+
+    if (!name) {
+      alert('カテゴリが選択されていません');
+      return;
+    }
+
     setShowProgress(true);
     setAborted(false);
     setProgressText('');

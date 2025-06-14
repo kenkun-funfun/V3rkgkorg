@@ -19,7 +19,7 @@ export default function ImageDisplay(props: Props) {
 
   return (
     <div
-      class="w-screen h-full flex justify-center items-center overflow-hidden bg-black"
+      class="w-screen h-full flex justify-center items-center overflow-hidden bg-black cursor-default select-none"
       onClick={props.onTap}
     >
       {/* ✅ プリロード用の透明img */}
