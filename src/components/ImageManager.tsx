@@ -6,6 +6,7 @@ import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 import UploadProgressModal from './UploadProgressModal';
 
 const [isDragOver, setIsDragOver] = createSignal(false);
+const [sortOrder, setSortOrder] = createSignal<'asc' | 'desc'>('asc');
 
 type Props = {
   categoryName: string;
@@ -24,7 +25,9 @@ export default function ImageManager(props: Props) {
 
   const paginatedImages = () => {
     const start = (currentPage() - 1) * perPage();
-    return props.images.slice(start, start + perPage());
+    const sorted = [...props.images];
+    if (sortOrder() === 'desc') sorted.reverse();
+    return sorted.slice(start, start + perPage());
   };
 
   const handleFiles = async (name: string, files: File[]) => {
@@ -112,17 +115,32 @@ export default function ImageManager(props: Props) {
       </div>
 
       {/* 表示数切替 */}
-      <div class="flex justify-end items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-        <span>表示件数:</span>
-        <select
-          value={perPage()}
-          onChange={(e) => { setPerPage(Number(e.currentTarget.value)); setCurrentPage(1); }}
-          class="border rounded px-2 py-1 bg-white dark:bg-zinc-800"
-        >
-          <option value="12">12</option>
-          <option value="24">24</option>
-          <option value="48">48</option>
-        </select>
+      <div class="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+        <div class="flex items-center gap-2">
+          <span>表示件数:</span>
+          <select
+            value={perPage()}
+            onChange={(e) => { setPerPage(Number(e.currentTarget.value)); setCurrentPage(1); }}
+            class="border rounded px-2 py-1 bg-white dark:bg-zinc-800"
+          >
+            <option value="12">12</option>
+            <option value="24">24</option>
+            <option value="48">48</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span>並び順:</span>
+          <button
+            onClick={() => {
+              setSortOrder(sortOrder() === 'asc' ? 'desc' : 'asc');
+              setCurrentPage(1);
+            }}
+            class="px-3 py-1 rounded border bg-white dark:bg-zinc-800"
+          >
+            {sortOrder() === 'asc' ? '昇順' : '降順'}
+          </button>
+        </div>
       </div>
 
       {/* 画像グリッド */}
