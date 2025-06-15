@@ -2,7 +2,7 @@
 import type { Component } from 'solid-js';
 import { MODE } from '@/lib/constants';
 import type { ModeType } from '@/lib/constants'; // ✅ こっちが正しい型
-import { Timer, X, Settings, FileClock } from 'lucide-solid';
+import { Timer, X } from 'lucide-solid';
 import { Show } from 'solid-js';
 
 type Props = {
@@ -29,21 +29,28 @@ const Header: Component<Props> = (props) => {
       <div class="flex gap-2">
         <Show when={props.mode === MODE.START_SCREEN}>
           <button
-            class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm"
+            class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
             onClick={props.onOpenCategoryManager}
           >
-            <Settings size={16} />
             カテゴリ管理
           </button>
-        </Show>
+          <button
+            class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
+            onClick={props.onShowHistory}
+          >
+            履歴
+          </button>
 
-        <button
-          class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
-          onClick={props.onShowHistory}
-        >
-          <FileClock size={16} />
-          再生履歴
-        </button>
+          <a
+            href="https://rkgk.org/tools/image_json_maker.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
+          >
+            JSONメーカー
+          </a>
+
+        </Show>
       </div>
 
       {/* === 中央：タイマー・再生枚数 === */}
