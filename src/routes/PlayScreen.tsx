@@ -354,7 +354,14 @@ export default function PlayScreen() {
             </div>
             <div class="flex-1 h-[55vh] md:h-auto overflow-y-auto p-4">
 
-              <Show when={currentCategory()}>
+              <Show
+                when={currentCategory()}
+                fallback={
+                  <div class="text-center text-sm text-red-500 dark:text-red-400 py-8">
+                    カテゴリを選択してください
+                  </div>
+                }
+              >
                 <ImageManager
                   categoryName={currentCategory()}
                   images={get()[currentCategory()] || []}
@@ -374,6 +381,7 @@ export default function PlayScreen() {
                   }}
                 />
               </Show>
+
             </div>
           </div>
         </div>

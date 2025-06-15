@@ -38,7 +38,7 @@ const Header: Component<Props> = (props) => {
         </Show>
 
         <button
-          class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm"
+          class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
           onClick={props.onShowHistory}
         >
           <FileClock size={16} />

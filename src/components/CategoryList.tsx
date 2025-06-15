@@ -109,7 +109,7 @@ export default function CategoryList(props: Props) {
                 autofocus
               />
             ) : (
-              <span class="flex-1 truncate">{name}</span>
+              <span class="flex-1 truncate">{name}（{get()[name]?.length || 0}）</span>
             )}
 
             <div class="flex gap-1">

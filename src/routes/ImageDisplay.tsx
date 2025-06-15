@@ -19,14 +19,14 @@ export default function ImageDisplay(props: Props) {
 
   return (
     <div
-      class="w-screen h-full flex justify-center items-center overflow-hidden bg-black cursor-default select-none"
+      class="w-screen h-full flex justify-center items-center overflow-hidden bg-white text-black dark:bg-black dark:text-white cursor-default select-none"
       onClick={props.onTap}
     >
       {/* ✅ プリロード用の透明img */}
       {props.preloadUrl && (
         <img src={props.preloadUrl} alt="" style={{ display: 'none' }} loading="eager" />
       )}
-      
+
       <Show when={props.imageUrl} fallback={<div class="text-gray-400">画像がありません</div>}>
         <img
           src={props.imageUrl!}

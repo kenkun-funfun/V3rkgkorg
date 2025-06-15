@@ -61,7 +61,7 @@ export default function LoadModal(props: Props) {
             >
               <option value="overwrite">上書き</option>
               <option value="delete-add">削除追加</option>
-              <option value="append">追記</option>
+              <option value="append">追加</option>
               <option value="rename-add">リネーム追加</option>
               <option value="reset-and-load">初期化して読込</option>
             </select>
