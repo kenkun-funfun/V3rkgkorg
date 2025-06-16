@@ -228,11 +228,37 @@ export default function PlayScreen() {
       }
     };
 
+    // ✅ キーボードイベント登録
     window.addEventListener('keydown', keyHandler);
-    onCleanup(() => window.removeEventListener('keydown', keyHandler));
+
+    // ✅ 画像ドラッグ＆ドロップ対応（管理画面モード）
+    const handleDragOver = (e: DragEvent) => e.preventDefault();
+    const handleDrop = async (e: DragEvent) => {
+      e.preventDefault();
+      const files = Array.from(e.dataTransfer?.files || []).filter((f) =>
+        f.type.startsWith('image/')
+      );
+      const name = currentCategory();
+      if (!name || !files.length) return;
+
+      for (const file of files) {
+        const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
+        const hash = await generateHash(base64);
+        addImage(name, { base64, hash });
+      }
+    };
+
+    window.addEventListener('dragover', handleDragOver);
+    window.addEventListener('drop', handleDrop);
+
+    // ✅ 後片付け
+    onCleanup(() => {
+      window.removeEventListener('keydown', keyHandler);
+      window.removeEventListener('dragover', handleDragOver);
+      window.removeEventListener('drop', handleDrop);
+    });
   });
 
-  onCleanup(() => stopTimer());
 
   return (
     <section

@@ -1,13 +1,13 @@
 // src/components/ImageManager.tsx
 import { createSignal, For, Show } from 'solid-js';
-import { Trash2, UploadCloud } from 'lucide-solid';
+import { Trash2, UploadCloud, CircleAlert } from 'lucide-solid';
 import { addImage, removeImage, currentCategory } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 import UploadProgressModal from './UploadProgressModal';
 import { get } from '@/stores/categoryStore';
 
 const [isDragOver, setIsDragOver] = createSignal(false);
-const [sortOrder, setSortOrder] = createSignal<'asc' | 'desc'>('asc');
+const [sortOrder, setSortOrder] = createSignal<'asc' | 'desc'>('desc');
 
 export default function ImageManager() {
   const [perPage, setPerPage] = createSignal(12);
@@ -50,7 +50,7 @@ export default function ImageManager() {
         break;
       }
       const file = files[i];
-      const base64 = await resizeAndConvertToBase64(file, 1080, 1350);
+      const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
       const hash = await generateHash(base64);
       addImage(name, { base64, hash });
       setProgressText(`${i + 1} / ${files.length} 処理中…`);
@@ -108,13 +108,28 @@ export default function ImageManager() {
         onDrop={(e) => {
           e.preventDefault();
           setIsDragOver(false);
-          handleDrop(e);
+          // handleDrop(e);
         }}
       >
-        <div class="flex flex-col items-center space-y-2 text-sm text-gray-600 dark:text-gray-300">
+        <div class="flex flex-col items-center space-y-2 text-sm text-gray-600 dark:text-gray-300 text-center">
           <UploadCloud size={32} />
-          <span>ここに画像をドロップ、またはクリックして追加</span>
+          <span>
+            画像を追加するにはここをクリック、またはこのページ内にドロップ
+          </span>
+
+          <div class="flex flex-col items-start gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <div class="flex items-start gap-2">
+              <CircleAlert size={14} class="mt-0.5 shrink-0" />
+              <span>ブラウザで表示している画像も、直接ドラッグドロップできます。</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <CircleAlert size={14} class="mt-0.5 shrink-0" />
+              <span>ページ全体がドロップ領域です。枠の外でもドロップできます。</span>
+            </div>
+          </div>
         </div>
+
+
       </div>
 
       <div class="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
