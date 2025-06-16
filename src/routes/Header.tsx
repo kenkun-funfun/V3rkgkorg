@@ -4,6 +4,7 @@ import { MODE } from '@/lib/constants';
 import type { ModeType } from '@/lib/constants'; // ✅ こっちが正しい型
 import { Timer, X } from 'lucide-solid';
 import { Show } from 'solid-js';
+import { A } from '@solidjs/router'; // ← 上部に追加されていなければこれも忘れずに
 
 type Props = {
   mode: ModeType; // ✅ これが正しい
@@ -40,16 +41,12 @@ const Header: Component<Props> = (props) => {
           >
             履歴
           </button>
-
-          <a
-            href="https://rkgk.org/tools/image_json_maker.html"
-            target="_blank"
-            rel="noopener noreferrer"
+          <A
+            href="/json-maker"
             class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
           >
-            JSONメーカー
-          </a>
-
+            JSON生成
+          </A>
         </Show>
       </div>
 

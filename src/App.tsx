@@ -4,7 +4,8 @@ import { Router, Route } from '@solidjs/router';
 import PlayScreen from './routes/PlayScreen';
 import Toast from './components/Toast';
 import { themeStore } from './stores/themeStore'; // ✅ 追加（副作用発動）
-import GoogleAnalytics from './components/GoogleAnalytics';
+import ImageJsonMaker from './routes/ImageJsonMaker';
+
 
 // 呼び出すだけで副作用実行
 themeStore;
@@ -12,9 +13,9 @@ themeStore;
 export default function App() {
   return (
     <>
-      <GoogleAnalytics /> {/* ✅ 追加 */}
       <Router>
         <Route path="/" component={PlayScreen} />
+        <Route path="/json-maker" component={ImageJsonMaker} />
         {/* もう1ルートあるならここ */}
       </Router>
       <Toast /> {/* ✅ トースト表示をルートに追加 */}
