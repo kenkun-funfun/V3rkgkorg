@@ -8,3 +8,8 @@ html, body {
   height: 100%;
   overflow: hidden;
 }
+
+.drag-active {
+  background-color: #f0f8ff;
+  transition: background-color 0.3s ease;
+}
