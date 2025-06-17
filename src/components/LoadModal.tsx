@@ -19,7 +19,7 @@ const modeDescriptionKeys: Record<MergeMode, keyof i18n['ja']> = {
 
 export default function LoadModal(props: Props) {
   let fileInputRef: HTMLInputElement | undefined;
-  const [mode, setMode] = createSignal<MergeMode>('overwrite');
+  const [mode, setMode] = createSignal<MergeMode>('reset-and-load');
   const [progressText, setProgressText] = createSignal('');
   let isClickOnBackdrop = false;
 
@@ -70,10 +70,10 @@ export default function LoadModal(props: Props) {
               onChange={(e) => setMode(e.currentTarget.value as MergeMode)}
               class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-700 text-black dark:text-white"
             >
+              <option value="reset-and-load">{t('load_mode_reset')}</option>
               <option value="overwrite">{t('load_mode_delete_add')}</option>
               <option value="append">{t('load_mode_append')}</option>
               <option value="rename-add">{t('load_mode_rename_add')}</option>
-              <option value="reset-and-load">{t('load_mode_reset')}</option>
             </select>
             <p class="mt-2 text-sm text-zinc-800 dark:text-zinc-200">
               {t(modeDescriptionKeys[mode()])}

@@ -1,5 +1,5 @@
 // src/components/CategoryAddModal.tsx
-import { createSignal } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import { X, Plus } from 'lucide-solid';
 import { t } from '@/stores/i18nStore';
 
@@ -11,12 +11,17 @@ type Props = {
 export default function CategoryAddModal(props: Props) {
   const [name, setName] = createSignal('');
   let isClickOnBackdrop = false;
+  let inputRef: HTMLInputElement | undefined;
 
   const handleAdd = () => {
     const trimmed = name().trim();
     if (trimmed) props.onAdd(trimmed);
     props.onClose();
   };
+
+  onMount(() => {
+    inputRef?.focus();
+  });
 
   return (
     <div
@@ -38,11 +43,18 @@ export default function CategoryAddModal(props: Props) {
           </button>
         </div>
         <input
+          ref={inputRef}
           type="text"
           placeholder={t('category_add_placeholder')}
           class="w-full p-2 border rounded dark:bg-zinc-700 dark:border-zinc-500 text-black dark:text-white mb-4"
           value={name()}
           onInput={(e) => setName(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.isComposing) {
+              e.preventDefault();
+              handleAdd();
+            }
+          }}
         />
         <div class="flex justify-end">
           <button
