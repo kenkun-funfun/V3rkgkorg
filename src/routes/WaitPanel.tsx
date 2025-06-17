@@ -14,9 +14,9 @@ type Props = {
 export default function WaitPanel(props: Props) {
   const [minute, setMinute] = createSignal(5);
   const [second, setSecond] = createSignal(0);
-  const [shuffle, setShuffle] = createSignal(false);
+  const [shuffle, setShuffle] = createSignal(true);
   const [keyboardEnabled, setKeyboardEnabled] = createSignal(true);
-  const [tapEnabled, setTapEnabled] = createSignal(false);
+  const [tapEnabled, setTapEnabled] = createSignal(true);
   const [maxPlays, setMaxPlays] = createSignal(10);
 
   const updateDuration = (m: number, s: number) => {
@@ -28,25 +28,36 @@ export default function WaitPanel(props: Props) {
     const d = localStorage.getItem('duration');
     if (d) {
       const [m, s] = d.split(':').map(Number);
-      setMinute(m || 0);
-      setSecond(s || 0);
+      setMinute(Number.isFinite(m) ? m : 5);
+      setSecond(Number.isFinite(s) ? s : 0);
     }
+
     const s = localStorage.getItem('shuffle');
-    if (s) setShuffle(s === 'true');
+    if (s !== null) setShuffle(s === 'true');
+
     const k = localStorage.getItem('keyboardEnabled');
-    if (k) setKeyboardEnabled(k === 'true');
+    if (k !== null) setKeyboardEnabled(k === 'true');
+
     const t = localStorage.getItem('tapEnabled');
-    if (t) setTapEnabled(t === 'true');
+    if (t !== null) setTapEnabled(t === 'true');
+
     const m = localStorage.getItem('maxPlays');
-    if (m) setMaxPlays(parseInt(m));
+    if (m !== null && !isNaN(parseInt(m))) setMaxPlays(parseInt(m));
+
   });
+
 
   const handleStart = () => {
     const selected = panelSelectedCategories();
     if (selected.length === 0) {
-alert(t('wait_select_category'));
+      alert(t('wait_select_category'));
       return;
     }
+    updateDuration(minute(), second());
+    localStorage.setItem('shuffle', String(shuffle()));
+    localStorage.setItem('keyboardEnabled', String(keyboardEnabled()));
+    localStorage.setItem('tapEnabled', String(tapEnabled()));
+    localStorage.setItem('maxPlays', String(maxPlays()));
     props.onStart(selected);
   };
 
@@ -60,7 +71,7 @@ alert(t('wait_select_category'));
             class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold w-full hover:bg-green-700 transition"
             onClick={props.onToggleCategoryPanel}
           >
-{t('wait_select_category_button')}
+            {t('wait_select_category_button')}
           </button>
         </div>
 
