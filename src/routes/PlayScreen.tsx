@@ -30,6 +30,7 @@ import {
 } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 import { addToast } from '@/components/Toast';
+import { t } from '@/stores/i18nStore';
 
 export default function PlayScreen() {
   const [viewMode, setViewMode] = createSignal<'play' | 'manage'>('play');
@@ -205,7 +206,7 @@ export default function PlayScreen() {
     }
 
     setShowDeletePanel(false);
-    addToast('画像を削除しました', 'success');
+    addToast(t('play_deleted'), 'success');
   };
 
   onMount(() => {
@@ -310,7 +311,7 @@ export default function PlayScreen() {
 
             <Show when={showPausedOverlay()}>
               <div class="absolute text-4xl font-bold text-white bg-black/60 px-6 py-2 rounded">
-                PAUSED
+                {t('play_paused')}
               </div>
             </Show>
 
@@ -360,9 +361,9 @@ export default function PlayScreen() {
               class="text-sm font-medium px-3 py-1 bg-zinc-600 hover:bg-zinc-500 rounded"
               onClick={() => setViewMode('play')}
             >
-              ← 再生画面に戻る
+              ← {t('play_back_to_play')}
             </button>
-            <h2 class="text-base font-semibold">カテゴリ管理</h2>
+            <h2 class="text-base font-semibold">{t('play_category_manage')}</h2>
             <div class="w-[64px]" />
           </div>
 
@@ -384,7 +385,7 @@ export default function PlayScreen() {
                 when={currentCategory()}
                 fallback={
                   <div class="text-center text-sm text-red-500 dark:text-red-400 py-8">
-                    カテゴリを選択してください
+                    {t('play_select_category')}
                   </div>
                 }
               >

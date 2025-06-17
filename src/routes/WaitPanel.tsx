@@ -3,6 +3,7 @@ import { createSignal, onMount, For } from 'solid-js';
 import type { Setter } from 'solid-js';
 import type { ModeType } from '@/lib/constants';
 import { panelSelectedCategories } from '@/stores/categoryStore';
+import { t } from '@/stores/i18nStore';
 
 type Props = {
   setMode: Setter<ModeType>;
@@ -43,7 +44,7 @@ export default function WaitPanel(props: Props) {
   const handleStart = () => {
     const selected = panelSelectedCategories();
     if (selected.length === 0) {
-      alert('カテゴリを選択してください');
+alert(t('wait_select_category'));
       return;
     }
     props.onStart(selected);
@@ -59,13 +60,13 @@ export default function WaitPanel(props: Props) {
             class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold w-full hover:bg-green-700 transition"
             onClick={props.onToggleCategoryPanel}
           >
-            カテゴリを選択する
+{t('wait_select_category_button')}
           </button>
         </div>
 
         {/* タイマー設定 */}
         <div>
-          <label class="block text-sm font-semibold text-white mb-1">タイマー（分:秒）</label>
+          <label class="block text-sm font-semibold text-white mb-1">{t('wait_timer_label')}</label>
           <div class="flex gap-2">
             <select
               value={minute()}
@@ -77,7 +78,7 @@ export default function WaitPanel(props: Props) {
               class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
             >
               <For each={[...Array(61).keys()]}>{(v) => (
-                <option value={v}>{v} 分</option>
+                <option value={v}>{v} {t('minutes')}</option>
               )}</For>
             </select>
             <select
@@ -90,15 +91,15 @@ export default function WaitPanel(props: Props) {
               class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
             >
               <For each={[...Array(61).keys()]}>{(v) => (
-                <option value={v}>{v} 秒</option>
+                <option value={v}>{v} {t('seconds')}</option>
               )}</For>
             </select>
           </div>
         </div>
 
-        {/* 最大再生枚数 */}
+        {/* 再生枚数 */}
         <div>
-          <label class="block text-sm font-semibold text-white mb-1">最大再生枚数</label>
+          <label class="block text-sm font-semibold text-white mb-1">{t('wait_max_plays')}</label>
           <select
             value={maxPlays()}
             onChange={(e) => {
@@ -125,7 +126,7 @@ export default function WaitPanel(props: Props) {
                 localStorage.setItem('shuffle', String(e.currentTarget.checked));
               }}
             />
-            シャッフル再生を有効にする
+            {t('wait_enable_shuffle')}
           </label>
 
           <label class="inline-flex items-center gap-2 text-sm text-white w-full">
@@ -137,7 +138,7 @@ export default function WaitPanel(props: Props) {
                 localStorage.setItem('keyboardEnabled', String(e.currentTarget.checked));
               }}
             />
-            キーボード操作を有効にする
+            {t('wait_enable_keyboard')}
           </label>
 
           <label class="inline-flex items-center gap-2 text-sm text-white w-full">
@@ -149,7 +150,7 @@ export default function WaitPanel(props: Props) {
                 localStorage.setItem('tapEnabled', String(e.currentTarget.checked));
               }}
             />
-            タップ操作を有効にする
+            {t('wait_enable_tap')}
           </label>
         </div>
 
@@ -159,7 +160,7 @@ export default function WaitPanel(props: Props) {
             class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold w-full hover:bg-blue-700 transition"
             onClick={handleStart}
           >
-            ▶ 再生を開始する
+            ▶ {t('play')}
           </button>
 
         </div>

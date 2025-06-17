@@ -5,6 +5,7 @@ import type { ModeType } from '@/lib/constants'; // ✅ こっちが正しい型
 import { Timer, X } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { A } from '@solidjs/router'; // ← 上部に追加されていなければこれも忘れずに
+import { t } from '@/stores/i18nStore';
 
 type Props = {
   mode: ModeType; // ✅ これが正しい
@@ -33,13 +34,13 @@ const Header: Component<Props> = (props) => {
             class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
             onClick={props.onOpenCategoryManager}
           >
-            カテゴリ管理
+           {t('header_category_manage')}
           </button>
           <button
             class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
             onClick={props.onShowHistory}
           >
-            履歴
+           {t('header_play_history')}
           </button>
         </Show>
       </div>
@@ -49,7 +50,7 @@ const Header: Component<Props> = (props) => {
         <Show when={props.mode !== MODE.START_SCREEN}>
           <div class="flex items-center gap-1">
             <Timer size={14} />
-            <span>残り {formatTime(props.timeLeft)}</span>
+            <span>{t('header_remaining')} {formatTime(props.timeLeft)}</span>
           </div>
         </Show>
         <Show when={props.mode === MODE.RUNNING && props.totalCount}>

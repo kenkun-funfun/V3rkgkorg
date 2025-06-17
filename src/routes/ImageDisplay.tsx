@@ -1,5 +1,6 @@
 // src/routes/ImageDisplay.tsx
 import { Show } from 'solid-js';
+import { t } from '@/stores/i18nStore';
 
 type Props = {
   imageUrl: string | null;
@@ -27,7 +28,7 @@ export default function ImageDisplay(props: Props) {
         <img src={props.preloadUrl} alt="" style={{ display: 'none' }} loading="eager" />
       )}
 
-      <Show when={props.imageUrl} fallback={<div class="text-gray-400">画像がありません</div>}>
+      <Show when={props.imageUrl} fallback={<div class="text-gray-400">{t('image_display_unavailable')}</div>}>
         <img
           src={props.imageUrl!}
           alt="pose"

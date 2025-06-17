@@ -1,6 +1,7 @@
 // src/routes/FilterPanel.tsx
 import { createSignal, createEffect } from 'solid-js';
 import { X } from 'lucide-solid';
+import { t } from '@/stores/i18nStore';
 
 type Props = {
   onClose: () => void;
@@ -26,7 +27,7 @@ export default function FilterPanel(props: Props) {
       onClick={stop}
     >
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold">フィルター設定</h2>
+        <h2 class="text-lg font-bold">{t('filter_panel_title')}</h2>
         <button onClick={(e) => { e.stopPropagation(); props.onClose(); }}>
           <X size={20} />
         </button>
@@ -34,20 +35,20 @@ export default function FilterPanel(props: Props) {
 
       <div class="space-y-3">
         <div>
-          <label class="block text-sm mb-1">カラー切替</label>
+          <label class="block text-sm mb-1">{t('filter_panel_color_mode')}</label>
           <select
             value={mode()}
             onChange={(e) => setMode(e.currentTarget.value)}
             class="w-full px-2 py-1 rounded text-black"
           >
-            <option value="">カラー</option>
-            <option value="grayscale(100%)">グレースケール</option>
-            <option value="sepia(100%)">セピア</option>
+            <option value="">{t('filter_color_normal')}</option>
+            <option value="grayscale(100%)">{t('filter_color_grayscale')}</option>
+            <option value="sepia(100%)">{t('filter_color_sepia')}</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-sm mb-1">明るさ: {brightness()}%</label>
+          <label class="block text-sm mb-1">{t('filter_panel_brightness')}: {brightness()}%</label>
           <input
             type="range"
             min="50"
@@ -62,7 +63,7 @@ export default function FilterPanel(props: Props) {
           onClick={(e) => { e.stopPropagation(); props.onClose(); }}
           class="mt-2 px-4 py-2 bg-white text-black rounded"
         >
-          閉じる
+          {t('filter_panel_close')}
         </button>
       </div>
     </div>

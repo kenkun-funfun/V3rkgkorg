@@ -5,6 +5,7 @@ import { addImage, removeImage, currentCategory } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 import UploadProgressModal from './UploadProgressModal';
 import { get } from '@/stores/categoryStore';
+import { t } from '@/stores/i18nStore';
 
 const [isDragOver, setIsDragOver] = createSignal(false);
 const [sortOrder, setSortOrder] = createSignal<'asc' | 'desc'>('desc');
@@ -36,7 +37,7 @@ export default function ImageManager() {
   const handleFiles = async (files: File[]) => {
     const name = currentCategory();
     if (!name) {
-      alert('カテゴリが選択されていません');
+      alert(t('image_upload_no_category'));
       return;
     }
 
@@ -46,16 +47,16 @@ export default function ImageManager() {
 
     for (let i = 0; i < files.length; i++) {
       if (aborted()) {
-        setProgressText(`⏹ 停止しました (${i} / ${files.length})`);
+        setProgressText(`⏹ ${t('image_upload_aborted')} (${i} / ${files.length})`);
         break;
       }
       const file = files[i];
       const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
       const hash = await generateHash(base64);
       addImage(name, { base64, hash });
-      setProgressText(`${i + 1} / ${files.length} 処理中…`);
+      setProgressText(`${i + 1} / ${files.length} ${t('image_upload_processing')}`);
     }
-    if (!aborted()) setProgressText('✅ 完了しました！');
+    if (!aborted()) setProgressText(`✅ ${t('image_upload_done')}`);
     setTimeout(() => setShowProgress(false), 2000);
   };
 
@@ -114,17 +115,17 @@ export default function ImageManager() {
         <div class="flex flex-col items-center space-y-2 text-sm text-gray-600 dark:text-gray-300 text-center">
           <UploadCloud size={32} />
           <span>
-            画像を追加するにはここをクリック、またはこのページ内にドロップ
+            {t('image_upload_hint')}
           </span>
 
           <div class="flex flex-col items-start gap-1 text-xs text-gray-500 dark:text-gray-400">
             <div class="flex items-start gap-2">
               <CircleAlert size={14} class="mt-0.5 shrink-0" />
-              <span>ブラウザで表示している画像も、直接ドラッグドロップできます。</span>
+              <span>{t('image_upload_drag_info1')}</span>
             </div>
             <div class="flex items-start gap-2">
               <CircleAlert size={14} class="mt-0.5 shrink-0" />
-              <span>ページ全体がドロップ領域です。枠の外でもドロップできます。</span>
+              <span>{t('image_upload_drag_info2')}</span>
             </div>
           </div>
         </div>
@@ -134,7 +135,7 @@ export default function ImageManager() {
 
       <div class="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
         <div class="flex items-center gap-2">
-          <span>表示件数:</span>
+          <span>{t('image_display_count')}</span>
           <select
             value={perPage()}
             onChange={(e) => { setPerPage(Number(e.currentTarget.value)); setCurrentPage(1); }}
@@ -147,7 +148,7 @@ export default function ImageManager() {
         </div>
 
         <div class="flex items-center gap-2">
-          <span>並び順:</span>
+          <span>{t('image_sort_order')}</span>
           <button
             onClick={() => {
               setSortOrder(sortOrder() === 'asc' ? 'desc' : 'asc');
@@ -155,7 +156,7 @@ export default function ImageManager() {
             }}
             class="px-3 py-1 rounded border bg-white dark:bg-zinc-800"
           >
-            {sortOrder() === 'asc' ? '昇順' : '降順'}
+            {sortOrder() === 'asc' ? t('sort_asc') : t('sort_desc')}
           </button>
         </div>
       </div>
@@ -194,7 +195,8 @@ export default function ImageManager() {
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             class="px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-700 disabled:opacity-50"
           >
-            前へ
+            {t('prev_page')}
+
           </button>
           <span>
             {currentPage()} / {totalPages()}
@@ -204,7 +206,7 @@ export default function ImageManager() {
             onClick={() => setCurrentPage((prev) => Math.min(totalPages(), prev + 1))}
             class="px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-700 disabled:opacity-50"
           >
-            次へ
+            {t('next_page')}
           </button>
         </div>
       </Show>

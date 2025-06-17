@@ -9,6 +9,7 @@ import {
   pinnedCategories,
   setPinnedCategories
 } from '@/stores/categoryStore';
+import { t } from '@/stores/i18nStore';
 
 type Props = {
   isOpen: boolean;
@@ -49,14 +50,14 @@ export default function CategoryPanel(props: Props) {
       <div class="fixed inset-0 bg-black/50 z-40">
         <aside class="absolute right-0 top-0 max-h-[100dvh] pb-[100px] w-full sm:w-[480px] z-50 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-lg border-l border-zinc-700 flex flex-col overflow-hidden">
           <div class="flex items-center justify-between px-4 py-2 border-b border-zinc-700">
-            <h2 class="font-bold">カテゴリ</h2>
+            <h2 class="font-bold">{t('category_panel_title')}</h2>
             <button onClick={props.onClose}><X size={18} /></button>
           </div>
 
           <div class="p-3 relative">
             <input
               type="text"
-              placeholder="カテゴリ検索..."
+              placeholder={t('category_panel_search_placeholder')}
               value={search()}
               onInput={(e) => setSearch(e.currentTarget.value)}
               class="w-full px-3 py-2 pr-8 rounded border bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white"
@@ -66,7 +67,7 @@ export default function CategoryPanel(props: Props) {
               <button
                 onClick={() => setSearch('')}
                 class="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-white"
-                aria-label="検索をクリア"
+                aria-label={t('category_panel_clear_search')}
               >
                 <X size={16} />
               </button>
@@ -90,7 +91,7 @@ export default function CategoryPanel(props: Props) {
                 <button
                   onClick={() => togglePin(name)}
                   class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
-                  title="ピン"
+                  title={t('category_panel_pin')}
                 >
                   {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
                 </button>
@@ -104,7 +105,7 @@ export default function CategoryPanel(props: Props) {
               class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
               onClick={props.onClose}
             >
-              閉じる
+              {t('category_panel_close')}
             </button>
           </div>
         </aside>

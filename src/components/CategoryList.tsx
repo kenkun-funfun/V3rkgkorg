@@ -12,6 +12,7 @@ import {
 } from '@/stores/categoryStore';
 import { Pencil, Trash2, Pin, PinOff, Plus, UploadCloud, DownloadCloud, Bug } from 'lucide-solid';
 import DuplicateCheckModal from './DuplicateCheckModal';
+import { t } from '@/stores/i18nStore';
 
 type Props = {
   selected: string | null;
@@ -51,28 +52,28 @@ export default function CategoryList(props: Props) {
         <button
           onClick={() => props.onLoad()}
           class="p-2 rounded bg-zinc-700 hover:bg-zinc-600 text-white"
-          title="JSON読み込み"
+          title={t('category_list_load')}
         >
           <UploadCloud size={18} />
         </button>
         <button
           onClick={() => props.onSave()}
           class="p-2 rounded bg-zinc-700 hover:bg-zinc-600 text-white"
-          title="JSON保存"
+          title={t('category_list_save')}
         >
           <DownloadCloud size={18} />
         </button>
         <button
           onClick={() => props.onAddCategory()}
           class="p-2 rounded bg-zinc-700 hover:bg-zinc-600 text-white"
-          title="カテゴリ追加"
+          title={t('category_list_add')}
         >
           <Plus size={18} />
         </button>
         <button
           onClick={() => props.onShowDuplicateModal()}
           class="p-2 rounded bg-zinc-700 hover:bg-zinc-600 text-white"
-          title="重複削除"
+          title={t('category_list_duplicates')}
         >
           <Bug size={18} />
         </button>
@@ -82,7 +83,7 @@ export default function CategoryList(props: Props) {
       <div class="flex gap-2 mb-2">
         <input
           type="text"
-          placeholder="カテゴリ検索"
+          placeholder={t('category_list_search_placeholder')}
           class="flex-1 p-2 rounded border border-zinc-300 dark:border-zinc-600 dark:bg-zinc-700 text-black dark:text-white"
           value={filter()}
           onInput={(e) => setFilter(e.currentTarget.value)}
@@ -143,7 +144,7 @@ export default function CategoryList(props: Props) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm(`「${name}」を削除しますか？`)) removeCategory(name);
+                  if (confirm(t('category_list_delete_confirm', { name }))) removeCategory(name);
                 }}
                 class="p-1 hover:text-red-500"
               >
