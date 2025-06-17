@@ -118,6 +118,7 @@ export const i18n = {
         next_page: '次へ',
         upload_success_suffix: '枚の画像を追加しました',
         upload_error_suffix: '枚の画像の追加に失敗しました',
+        image_display_finished: '終了しました', // ja
 
     },
     en: {
@@ -215,6 +216,7 @@ export const i18n = {
         next_page: 'Next',
         upload_success_suffix: 'images added',
         upload_error_suffix: 'images failed to add',
+        image_display_finished: 'Finished', // en
     },
 };
 

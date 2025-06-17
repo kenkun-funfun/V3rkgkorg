@@ -52,8 +52,11 @@ export default function PlayScreen() {
   const [showDuplicateModal, setShowDuplicateModal] = createSignal(false);
   const [showHistoryModal, setShowHistoryModal] = createSignal(false);
 
-  const [playHistory, setPlayHistory] = createSignal<string[]>([]);
-  const currentImage = () => playList()[imageIndex()];
+  const END_MARKER = '__END__';
+  const currentImage = () => {
+    const img = playList()[imageIndex()];
+    return img === END_MARKER ? null : img;
+  };
   const currentIndex = () => imageIndex();
   const totalCount = () => playList().length;
 
@@ -101,8 +104,9 @@ export default function PlayScreen() {
     const finalList = (shuffled.slice(0, max)).filter(Boolean);
 
     setPanelSelectedCategories(selected);
-    setPlayList(finalList.filter((v): v is string => typeof v === 'string'));
-    setPlayHistory(finalList);
+    const safeList = finalList.filter((v): v is string => typeof v === 'string');
+    safeList.push(END_MARKER);
+    setPlayList(safeList);
     setImageIndex(0);
     setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
     setShowCategoryPanel(false);
@@ -148,14 +152,22 @@ export default function PlayScreen() {
 
   const handleNext = () => {
     if (!debounceCheck() || showDeletePanel()) return;
+
     const next = imageIndex() + 1;
-    if (next >= playList().length) {
-      handleReset();
+    const list = playList();
+    if (next >= list.length) return;
+
+    const nextItem = list[next];
+    setImageIndex(next);
+
+    if (nextItem === END_MARKER) {
+      stopTimer();
+      setMode(MODE.PAUSED);
     } else {
-      setImageIndex(next);
       setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
     }
   };
+
 
   const handlePrev = () => {
     if (!debounceCheck() || showDeletePanel()) return;
@@ -445,14 +457,6 @@ export default function PlayScreen() {
       <Show when={showDuplicateModal()}>
         <DuplicateCheckModal onClose={() => setShowDuplicateModal(false)} />
       </Show>
-
-      <Show when={showHistoryModal()}>
-        <HistoryModal
-          images={playHistory()}
-          onClose={() => setShowHistoryModal(false)}
-        />
-      </Show>
-
     </section>
   );
 }

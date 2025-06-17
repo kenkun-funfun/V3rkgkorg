@@ -35,12 +35,6 @@ const Header: Component<Props> = (props) => {
           >
             {t('header_category_manage')}
           </button>
-          <button
-            class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
-            onClick={props.onShowHistory}
-          >
-            {t('header_play_history')}
-          </button>
         </Show>
 
         {/* 中央：タイマーとカウント */}
@@ -51,7 +45,9 @@ const Header: Component<Props> = (props) => {
               <span>{t('header_remaining')} {formatTime(props.timeLeft)}</span>
             </div>
             <Show when={props.mode === MODE.RUNNING && props.totalCount}>
-              <div>{props.currentIndex! + 1} / {props.totalCount}</div>
+              <div>
+                {Math.min(props.currentIndex! + 1, props.totalCount - 1)} / {props.totalCount - 1}
+              </div>
             </Show>
           </div>
         </Show>
