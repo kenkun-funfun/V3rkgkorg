@@ -18,6 +18,7 @@ type Props = {
 
 export default function CategoryPanel(props: Props) {
   const [search, setSearch] = createSignal('');
+  let isClickOnBackdrop = false;
 
   const togglePin = (name: string) => {
     const next = pinnedCategories().includes(name)
@@ -47,7 +48,17 @@ export default function CategoryPanel(props: Props) {
 
   return (
     <Show when={props.isOpen}>
-      <div class="fixed inset-0 bg-black/50 z-40">
+      <div
+        class="fixed inset-0 bg-black/50 z-40"
+        onMouseDown={(e) => {
+          isClickOnBackdrop = e.target === e.currentTarget;
+        }}
+        onMouseUp={(e) => {
+          if (isClickOnBackdrop && e.target === e.currentTarget) {
+            props.onClose();
+          }
+        }}
+      >
         <aside class="absolute right-0 top-0 max-h-[100dvh] pb-[100px] w-full sm:w-[480px] z-50 bg-white dark:bg-zinc-900 text-black dark:text-white shadow-lg border-l border-zinc-700 flex flex-col overflow-hidden">
           <div class="flex items-center justify-between px-4 py-2 border-b border-zinc-700">
             <h2 class="font-bold">{t('category_panel_title')}</h2>

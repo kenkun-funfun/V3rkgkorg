@@ -8,13 +8,22 @@ type Props = {
 };
 
 export default function HistoryModal(props: Props) {
-  return (
-    <>
-      {/* 🔳 背景を覆うオーバーレイ */}
-      <div class="fixed inset-0 bg-black/50 z-40"/>
+  let isClickOnBackdrop = false;
 
+  return (
+    <div
+      class="fixed inset-0 bg-black/50 z-40 flex justify-center items-start pt-10"
+      onMouseDown={(e) => {
+        isClickOnBackdrop = e.target === e.currentTarget;
+      }}
+      onMouseUp={(e) => {
+        if (isClickOnBackdrop && e.target === e.currentTarget) {
+          props.onClose();
+        }
+      }}
+    >
       {/* 📚 モーダル本体 */}
-      <div class="fixed top-10 left-1/2 -translate-x-1/2 bg-white dark:bg-black border border-zinc-600 rounded-lg shadow-lg z-50 max-w-3xl w-full max-h-[80vh] overflow-y-auto p-4">
+      <div class="bg-white dark:bg-black border border-zinc-600 rounded-lg shadow-lg z-50 max-w-3xl w-full max-h-[80vh] overflow-y-auto p-4">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-bold text-black dark:text-white">📚 再生履歴</h2>
           <button onClick={props.onClose}>
@@ -44,7 +53,6 @@ export default function HistoryModal(props: Props) {
           閉じる
         </button>
       </div>
-    </>
+    </div>
   );
 }
-

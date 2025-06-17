@@ -21,6 +21,7 @@ export default function LoadModal(props: Props) {
   let fileInputRef: HTMLInputElement | undefined;
   const [mode, setMode] = createSignal<MergeMode>('overwrite');
   const [progressText, setProgressText] = createSignal('');
+  let isClickOnBackdrop = false;
 
   const handleFile = async (e: Event) => {
     const input = e.currentTarget as HTMLInputElement;
@@ -42,7 +43,17 @@ export default function LoadModal(props: Props) {
   };
 
   return (
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div
+      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      onMouseDown={(e) => {
+        isClickOnBackdrop = e.target === e.currentTarget;
+      }}
+      onMouseUp={(e) => {
+        if (isClickOnBackdrop && e.target === e.currentTarget) {
+          props.onClose();
+        }
+      }}
+    >
       <div class="bg-white dark:bg-zinc-800 p-6 rounded shadow-lg w-full max-w-md">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-bold text-black dark:text-white">📂 {t('load_title')}</h2>

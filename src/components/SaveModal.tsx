@@ -11,6 +11,7 @@ type Props = {
 export default function SaveModal(props: Props) {
   const data = toJson();
   const categoryNames = Object.keys(data.data);
+  let isClickOnBackdrop = false;
 
   const handleSaveAll = () => {
     downloadJson(data, 'category_data.json');
@@ -23,7 +24,17 @@ export default function SaveModal(props: Props) {
   };
 
   return (
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div
+      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      onMouseDown={(e) => {
+        isClickOnBackdrop = e.target === e.currentTarget;
+      }}
+      onMouseUp={(e) => {
+        if (isClickOnBackdrop && e.target === e.currentTarget) {
+          props.onClose();
+        }
+      }}
+    >
       <div class="bg-white dark:bg-zinc-800 p-6 rounded shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-bold text-black dark:text-white">📂 {t('save_title')}</h2>
