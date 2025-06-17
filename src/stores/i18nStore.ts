@@ -116,6 +116,8 @@ export const i18n = {
         sort_desc: '降順',
         prev_page: '前へ',
         next_page: '次へ',
+        upload_success_suffix: '枚の画像を追加しました',
+        upload_error_suffix: '枚の画像の追加に失敗しました',
 
     },
     en: {
@@ -211,6 +213,8 @@ export const i18n = {
         sort_desc: 'Descending',
         prev_page: 'Prev',
         next_page: 'Next',
+        upload_success_suffix: 'images added',
+        upload_error_suffix: 'images failed to add',
     },
 };
 

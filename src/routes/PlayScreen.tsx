@@ -242,10 +242,26 @@ export default function PlayScreen() {
       const name = currentCategory();
       if (!name || !files.length) return;
 
+      let successCount = 0;
+      let failCount = 0;
+
       for (const file of files) {
-        const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
-        const hash = await generateHash(base64);
-        addImage(name, { base64, hash });
+        try {
+          const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
+          const hash = await generateHash(base64);
+          addImage(name, { base64, hash });
+          successCount++;
+        } catch (err) {
+          console.error('画像の追加に失敗:', err);
+          failCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        addToast(`${successCount} ${t('upload_success_suffix')}`, 'success');
+      }
+      if (failCount > 0) {
+        addToast(`${failCount} ${t('upload_error_suffix')}`, 'error');
       }
     };
 

@@ -65,7 +65,7 @@ export default function LoadModal(props: Props) {
               <option value="reset-and-load">{t('load_mode_reset')}</option>
             </select>
             <p class="mt-2 text-sm text-zinc-800 dark:text-zinc-200">
-{t(modeDescriptionKeys[mode()])}
+              {t(modeDescriptionKeys[mode()])}
             </p>
           </div>
           <p class="text-xs opacity-80">{progressText()}</p>

@@ -3,9 +3,9 @@ import { createSignal, For, Show } from 'solid-js';
 import { Trash2, UploadCloud, CircleAlert } from 'lucide-solid';
 import { addImage, removeImage, currentCategory } from '@/stores/categoryStore';
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
-import UploadProgressModal from './UploadProgressModal';
 import { get } from '@/stores/categoryStore';
 import { t } from '@/stores/i18nStore';
+import { addToast } from './Toast';
 
 const [isDragOver, setIsDragOver] = createSignal(false);
 const [sortOrder, setSortOrder] = createSignal<'asc' | 'desc'>('desc');
@@ -14,9 +14,7 @@ export default function ImageManager() {
   const [perPage, setPerPage] = createSignal(12);
   const [currentPage, setCurrentPage] = createSignal(1);
 
-  const [showProgress, setShowProgress] = createSignal(false);
-  const [progressText, setProgressText] = createSignal('');
-  const [aborted, setAborted] = createSignal(false);
+
 
   const images = () => {
     const category = currentCategory();
@@ -40,24 +38,28 @@ export default function ImageManager() {
       alert(t('image_upload_no_category'));
       return;
     }
-
-    setShowProgress(true);
-    setAborted(false);
-    setProgressText('');
+    let successCount = 0;
+    let failCount = 0;
 
     for (let i = 0; i < files.length; i++) {
-      if (aborted()) {
-        setProgressText(`⏹ ${t('image_upload_aborted')} (${i} / ${files.length})`);
-        break;
+      try {
+        const file = files[i];
+        const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
+        const hash = await generateHash(base64);
+        addImage(name, { base64, hash });
+        successCount++;
+      } catch (err) {
+        console.error('画像の追加に失敗:', err);
+        failCount++;
       }
-      const file = files[i];
-      const base64 = await resizeAndConvertToBase64(file, 1080, 1350, 'image/webp', 0.8);
-      const hash = await generateHash(base64);
-      addImage(name, { base64, hash });
-      setProgressText(`${i + 1} / ${files.length} ${t('image_upload_processing')}`);
     }
-    if (!aborted()) setProgressText(`✅ ${t('image_upload_done')}`);
-    setTimeout(() => setShowProgress(false), 2000);
+
+    if (successCount > 0) {
+      addToast(`${successCount} ${t('upload_success_suffix')}`, 'success');
+    }
+    if (failCount > 0) {
+      addToast(`${failCount} ${t('upload_error_suffix')}`, 'error');
+    }
   };
 
   const handleDrop = (e: DragEvent) => {
@@ -83,13 +85,6 @@ export default function ImageManager() {
 
   return (
     <div class="space-y-4">
-      <UploadProgressModal
-        visible={showProgress()}
-        progressText={progressText()}
-        onAbort={() => setAborted(true)}
-        onClose={() => setShowProgress(false)}
-      />
-
       <div
         class={`rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-all
           ${isDragOver()
