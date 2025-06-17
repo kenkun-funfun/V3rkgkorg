@@ -87,21 +87,28 @@ export default function CategoryPanel(props: Props) {
 
           <div class="flex-1 overflow-y-auto px-4 pb-6 space-y-2">
             <For each={filteredNames()}>{(name) => (
-              <div class="flex items-center justify-between px-2 py-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm">
-                {/* 左側：チェックと名前 */}
-                <label class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
+              <div
+                class={`flex items-center justify-between px-2 py-2 rounded transition-colors ${panelSelectedCategories().includes(name)
+                    ? 'bg-blue-50 dark:bg-blue-900'
+                    : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                  }`}
+                onClick={() => toggleSelect(name)}
+              >
+                <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={panelSelectedCategories().includes(name)}
-                    onChange={() => toggleSelect(name)}
+                    readOnly
                   />
                   <span class="truncate">{name}（{get()[name]?.length || 0}）</span>
-                </label>
-
-                {/* 右側：ピン */}
+                </div>
                 <button
-                  onClick={() => togglePin(name)}
-                  class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePin(name);
+                  }}
+                  class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'
+                    }`}
                   title={t('category_panel_pin')}
                 >
                   {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}

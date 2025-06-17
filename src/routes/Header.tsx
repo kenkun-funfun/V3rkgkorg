@@ -25,41 +25,38 @@ const Header: Component<Props> = (props) => {
   };
 
   return (
-    <header class="flex justify-between items-center px-4 py-2 bg-zinc-900 text-white border-b border-white">
-
-      {/* === 左：操作ボタン === */}
-      <div class="flex gap-2">
+    <header class="flex justify-center items-center px-4 py-2 bg-zinc-900 text-white border-b border-white">
+      <div class="flex flex-wrap justify-center items-center gap-3 text-xs select-none">
+        {/* 左：操作ボタン（START_SCREEN時のみ） */}
         <Show when={props.mode === MODE.START_SCREEN}>
           <button
             class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
             onClick={props.onOpenCategoryManager}
           >
-           {t('header_category_manage')}
+            {t('header_category_manage')}
           </button>
           <button
             class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
             onClick={props.onShowHistory}
           >
-           {t('header_play_history')}
+            {t('header_play_history')}
           </button>
         </Show>
-      </div>
 
-      {/* === 中央：タイマー・再生枚数 === */}
-      <div class="flex flex-col items-center text-xs select-none">
+        {/* 中央：タイマーとカウント */}
         <Show when={props.mode !== MODE.START_SCREEN}>
-          <div class="flex items-center gap-1">
-            <Timer size={14} />
-            <span>{t('header_remaining')} {formatTime(props.timeLeft)}</span>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1">
+              <Timer size={14} />
+              <span>{t('header_remaining')} {formatTime(props.timeLeft)}</span>
+            </div>
+            <Show when={props.mode === MODE.RUNNING && props.totalCount}>
+              <div>{props.currentIndex! + 1} / {props.totalCount}</div>
+            </Show>
           </div>
         </Show>
-        <Show when={props.mode === MODE.RUNNING && props.totalCount}>
-          <div>{props.currentIndex! + 1} / {props.totalCount}</div>
-        </Show>
-      </div>
 
-      {/* === 右：リセットボタン（またはプレースホルダ）=== */}
-      <div class="w-[100px] flex justify-end">
+        {/* 右：リセットボタン */}
         <Show when={props.mode !== MODE.START_SCREEN && props.onReset}>
           <button
             class="px-2 py-1 rounded border border-white hover:bg-white hover:text-black"
