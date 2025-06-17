@@ -2,7 +2,7 @@
 import type { Component } from 'solid-js';
 import { MODE } from '@/lib/constants';
 import type { ModeType } from '@/lib/constants'; // ✅ こっちが正しい型
-import { Timer, X } from 'lucide-solid';
+import { Timer, X, House } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { A } from '@solidjs/router'; // ← 上部に追加されていなければこれも忘れずに
 import { t } from '@/stores/i18nStore';
@@ -14,7 +14,8 @@ type Props = {
   onReset?: () => void;
   currentIndex?: number;
   totalCount?: number;
-  onShowHistory?: () => void;
+  onBackToPlay: () => void;
+  viewMode: 'play' | 'manage';
 };
 
 const Header: Component<Props> = (props) => {
@@ -29,12 +30,29 @@ const Header: Component<Props> = (props) => {
       <div class="flex flex-wrap justify-center items-center gap-3 text-xs select-none">
         {/* 左：操作ボタン（START_SCREEN時のみ） */}
         <Show when={props.mode === MODE.START_SCREEN}>
+          {/* ホームボタン（play用） */}
           <button
-            class="flex items-center gap-1 px-2 py-1 rounded border border-white hover:bg-white hover:text-black text-sm select-none"
+            class={`flex items-center gap-1 px-2 py-1 rounded border text-sm select-none
+    ${props.viewMode === 'play'
+                ? 'bg-white text-black border-white font-semibold'
+                : 'border-white hover:bg-white hover:text-black text-white'}`}
+            onClick={props.onBackToPlay}
+          >
+            <House size={16} />
+            {t('play_back_to_play')}
+          </button>
+
+          {/* カテゴリ管理ボタン（manage用） */}
+          <button
+            class={`flex items-center gap-1 px-2 py-1 rounded border text-sm select-none
+    ${props.viewMode === 'manage'
+                ? 'bg-white text-black border-white font-semibold'
+                : 'border-white hover:bg-white hover:text-black text-white'}`}
             onClick={props.onOpenCategoryManager}
           >
             {t('header_category_manage')}
           </button>
+
         </Show>
 
         {/* 中央：タイマーとカウント */}

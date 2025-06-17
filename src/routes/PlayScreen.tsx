@@ -16,7 +16,6 @@ import SaveModal from '@/components/SaveModal';
 import LoadModal from '@/components/LoadModal';
 import CategoryAddModal from '@/components/CategoryAddModal';
 import DuplicateCheckModal from '@/components/DuplicateCheckModal';
-import HistoryModal from '@/components/HistoryModal';
 import {
   get,
   loadFromJson,
@@ -50,7 +49,6 @@ export default function PlayScreen() {
   const [showLoadModal, setShowLoadModal] = createSignal(false);
   const [showAddModal, setShowAddModal] = createSignal(false);
   const [showDuplicateModal, setShowDuplicateModal] = createSignal(false);
-  const [showHistoryModal, setShowHistoryModal] = createSignal(false);
 
   const END_MARKER = '__END__';
   const currentImage = () => {
@@ -299,10 +297,11 @@ export default function PlayScreen() {
             mode={mode()}
             timeLeft={timeLeft()}
             onOpenCategoryManager={() => setViewMode('manage')}
+            onBackToPlay={() => setViewMode('play')}
             onReset={handleReset}
             currentIndex={currentIndex()}
             totalCount={totalCount()}
-            onShowHistory={() => setShowHistoryModal(true)} // ✅ 追加
+            viewMode={viewMode()}
           />
           <main
             class="flex-1 flex justify-center items-center overflow-hidden px-4 py-2 relative"
@@ -384,16 +383,14 @@ export default function PlayScreen() {
       {/* 管理画面（カテゴリ管理） */}
       <Show when={viewMode() === 'manage'}>
         <div class="h-full w-full flex flex-col bg-white dark:bg-black text-black dark:text-white">
-          <div class="p-3 bg-zinc-800 text-white flex justify-between items-center">
-            <button
-              class="text-sm font-medium px-3 py-1 bg-zinc-600 hover:bg-zinc-500 rounded"
-              onClick={() => setViewMode('play')}
-            >
-              ← {t('play_back_to_play')}
-            </button>
-            <h2 class="text-base font-semibold">{t('play_category_manage')}</h2>
-            <div class="w-[64px]" />
-          </div>
+          <Header
+            mode={MODE.START_SCREEN}
+            timeLeft={0}
+            onOpenCategoryManager={() => { }}
+            onReset={() => setViewMode('play')}
+            onBackToPlay={() => setViewMode('play')}
+            viewMode={viewMode()}
+          />
 
           <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
 
