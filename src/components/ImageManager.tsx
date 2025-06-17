@@ -159,7 +159,6 @@ export default function ImageManager() {
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <For each={paginatedImages()}>
           {(img, index) => {
-            const globalIndex = (currentPage() - 1) * perPage() + index();
             return (
               <div class="relative group border rounded overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                 <img
@@ -172,7 +171,18 @@ export default function ImageManager() {
                   class="absolute top-1 right-1 bg-red-600 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition"
                   onClick={() => {
                     const name = currentCategory();
-                    if (name) removeImage(name, globalIndex);
+                    if (!name) return;
+
+                    const original = [...images()];
+                    const sorted = [...original];
+                    if (sortOrder() === 'desc') sorted.reverse();
+
+                    const start = (currentPage() - 1) * perPage();
+                    const pageItem = sorted[start + index()]; // ✅ 表示中の画像そのもの
+
+                    const realIndex = original.indexOf(pageItem); // ✅ 元の順での index を特定
+
+                    if (realIndex >= 0) removeImage(name, realIndex);
                   }}
                 >
                   <Trash2 size={16} />
@@ -181,6 +191,7 @@ export default function ImageManager() {
             );
           }}
         </For>
+
       </div>
 
       <Show when={totalPages() > 1}>
