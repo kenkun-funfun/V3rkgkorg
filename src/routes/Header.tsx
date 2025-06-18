@@ -2,10 +2,13 @@
 import type { Component } from 'solid-js';
 import { MODE } from '@/lib/constants';
 import type { ModeType } from '@/lib/constants'; // ✅ こっちが正しい型
-import { Timer, X, House } from 'lucide-solid';
+import { Timer, X, House, Languages, Sun, Moon } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { A } from '@solidjs/router'; // ← 上部に追加されていなければこれも忘れずに
-import { t } from '@/stores/i18nStore';
+import { themeStore } from '@/stores/themeStore';
+import { lang, setLang, t } from '@/stores/i18nStore';
+
+const { theme, toggleTheme } = themeStore;
 
 type Props = {
   mode: ModeType; // ✅ これが正しい
@@ -30,11 +33,11 @@ const Header: Component<Props> = (props) => {
       <div class="flex flex-wrap justify-center items-center gap-3 text-xs select-none">
         {/* 左：操作ボタン（START_SCREEN時のみ） */}
         <Show when={props.mode === MODE.START_SCREEN}>
-          {/* ホームボタン（play用） */}
+          {/* 戻るボタン */}
           <button
-            class={`flex items-center gap-1 px-2 py-1 rounded border text-sm select-none
-    ${props.viewMode === 'play'
-                ? 'bg-white text-black border-white font-semibold'
+            class={`flex items-center gap-1 px-2 py-1 rounded border text-sm font-semibold select-none
+  ${props.viewMode === 'play'
+                ? 'bg-white text-black border-white'
                 : 'border-white hover:bg-white hover:text-black text-white'}`}
             onClick={props.onBackToPlay}
           >
@@ -42,15 +45,36 @@ const Header: Component<Props> = (props) => {
             {t('play_back_to_play')}
           </button>
 
-          {/* カテゴリ管理ボタン（manage用） */}
+          {/* カテゴリ管理ボタン */}
           <button
-            class={`flex items-center gap-1 px-2 py-1 rounded border text-sm select-none
-    ${props.viewMode === 'manage'
-                ? 'bg-white text-black border-white font-semibold'
+            class={`flex items-center gap-1 px-2 py-1 rounded border text-sm font-semibold select-none
+  ${props.viewMode === 'manage'
+                ? 'bg-white text-black border-white'
                 : 'border-white hover:bg-white hover:text-black text-white'}`}
             onClick={props.onOpenCategoryManager}
           >
             {t('header_category_manage')}
+          </button>
+
+          {/* テーマ切り替え */}
+          <button
+            onClick={toggleTheme}
+            class="flex items-center justify-center px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
+            title="テーマ切り替え"
+          >
+            <Show when={theme() === 'dark'} fallback={<Moon size={16} />}>
+              <Sun size={16} />
+            </Show>
+          </button>
+
+          {/* 言語切替 */}
+          <button
+            class="flex items-center gap-1 px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
+            onClick={() => setLang(lang() === 'ja' ? 'en' : 'ja')}
+            title={t('language')}
+          >
+            <Languages size={14} />
+            {lang() === 'ja' ? 'ja' : 'en'}
           </button>
 
         </Show>

@@ -60,7 +60,7 @@ export default function ImageDisplay(props: Props) {
 
         {/* ✅ エラー表示 */}
         <Match when={!props.imageUrl}>
-          <div class="text-gray-400">{t('image_display_unavailable')}</div>
+          <div class="text-gray-400"></div>
         </Match>
       </Switch>
       <Show when={props.isCountingDown}>

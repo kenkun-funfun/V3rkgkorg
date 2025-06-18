@@ -63,10 +63,10 @@ export default function Footer(props: Props) {
                 onClick={props.onTogglePause}
                 disabled={props.isEnd}
                 class={`w-full md:w-auto flex-1 p-2 rounded border ${props.isEnd
-                    ? 'opacity-50 cursor-not-allowed border-zinc-300 dark:border-zinc-600'
-                    : props.mode === MODE.PAUSED
-                      ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20'
+                  ? 'opacity-50 cursor-not-allowed border-zinc-300 dark:border-zinc-600'
+                  : props.mode === MODE.PAUSED
+                    ? 'border-blue-500 bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20'
                   }`}
               >
                 {props.mode === MODE.RUNNING ? <Pause /> : <Play />}
@@ -145,43 +145,7 @@ export default function Footer(props: Props) {
 
       {/* START_SCREEN → 軽量なフッター */}
       <Show when={props.mode === MODE.START_SCREEN}>
-        <div class="w-full px-4 py-2">
-          <div class="flex items-center justify-center gap-2 text-sm">
-            {/* テーマ切り替え */}
-            <button
-              onClick={toggleTheme}
-              class="p-2 rounded-full bg-zinc-700 hover:bg-zinc-600 text-white"
-              title="テーマ切り替え"
-            >
-              <Show when={theme() === 'dark'} fallback={<Moon size={16} />}>
-                <Sun size={16} />
-              </Show>
-            </button>
-
-            {/* 言語切替 */}
-            <button
-              class="flex items-center gap-1 px-2 py-1 rounded border border-zinc-400 dark:border-white hover:bg-white/10 dark:hover:bg-white/20 text-xs text-black dark:text-white"
-              onClick={() => setLang(lang() === 'ja' ? 'en' : 'ja')}
-              title={t('language')}
-            >
-              <Globe size={14} />
-              {lang() === 'ja' ? 'ja' : 'en'}
-            </button>
-
-            {/* Xリンク */}
-            <a
-              href="https://x.com/rkgk_org"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="flex items-center gap-1 px-2 py-1 rounded border border-zinc-400 dark:border-white text-xs text-black dark:text-white hover:bg-white/10 dark:hover:bg-white/20 transition"
-            >
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                <path d="M14.305 10.58 22.094 2h-2.003l-6.66 7.579L8.308 2H2l8.135 11.567L2 22h2.003l7.104-8.088L15.691 22H22l-7.695-11.42zm-2.51 2.863-.823-1.155L4.59 3.39h2.987l5.34 7.499.823 1.155 6.743 9.457h-2.987l-5.7-8.058z" />
-              </svg>
-              @rkgk_org
-            </a>
-          </div>
-        </div>
+        <div class="w-full px-4 py-2" />
       </Show>
     </>
   );

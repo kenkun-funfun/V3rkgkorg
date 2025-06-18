@@ -79,70 +79,68 @@ export default function WaitPanel(props: Props) {
     <div class="flex flex-col items-center justify-center px-4 py-6 w-full h-full overflow-hidden">
       <div class="w-full max-w-md space-y-6 bg-zinc-800 dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-700 relative">
 
-        {/* カテゴリ選択ボタン */}
-        <div class="pt-4">
-          <button
-            class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold w-full hover:bg-green-700 transition"
-            onClick={props.onToggleCategoryPanel}
-          >
-            {t('wait_select_category_button')}
-          </button>
-        </div>
+        <div class="space-y-4 w-full">
+          {/* Timer (min/sec) */}
+          <div>
+            <label class="block text-sm font-semibold text-white mb-1">
+              {t('wait_timer_label')}
+            </label>
+            <div class="flex gap-2">
+              <select
+                value={minute()}
+                onChange={(e) => {
+                  const m = parseInt(e.currentTarget.value);
+                  setMinute(m);
+                  updateDuration(m, second());
+                }}
+                class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+              >
+                <For each={[...Array(61).keys()]}>
+                  {(v) => <option value={v}>{v} {t('minutes')}</option>}
+                </For>
+              </select>
+              <select
+                value={second()}
+                onChange={(e) => {
+                  const s = parseInt(e.currentTarget.value);
+                  setSecond(s);
+                  updateDuration(minute(), s);
+                }}
+                class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+              >
+                <For each={[...Array(61).keys()]}>
+                  {(v) => <option value={v}>{v} {t('seconds')}</option>}
+                </For>
+              </select>
+            </div>
+          </div>
 
-        {/* タイマー設定 */}
-        <div>
-          <label class="block text-sm font-semibold text-white mb-1">{t('wait_timer_label')}</label>
-          <div class="flex gap-2">
+          {/* Number of images */}
+          <div>
+            <label class="block text-sm font-semibold text-white mb-1">
+              {t('wait_max_plays')}
+            </label>
             <select
-              value={minute()}
+              value={maxPlays()}
               onChange={(e) => {
-                const m = parseInt(e.currentTarget.value);
-                setMinute(m);
-                updateDuration(m, second());
+                const value = parseInt(e.currentTarget.value, 10);
+                setMaxPlays(value);
+                localStorage.setItem('maxPlays', String(value));
               }}
-              class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+              class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
             >
-              <For each={[...Array(61).keys()]}>{(v) => (
-                <option value={v}>{v} {t('minutes')}</option>
-              )}</For>
-            </select>
-            <select
-              value={second()}
-              onChange={(e) => {
-                const s = parseInt(e.currentTarget.value);
-                setSecond(s);
-                updateDuration(minute(), s);
-              }}
-              class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
-            >
-              <For each={[...Array(61).keys()]}>{(v) => (
-                <option value={v}>{v} {t('seconds')}</option>
-              )}</For>
+              <For each={Array.from({ length: 100 }, (_, i) => i + 1)}>
+                {(n) => <option value={n}>{n}</option>}
+              </For>
             </select>
           </div>
         </div>
 
-        {/* 再生枚数 */}
-        <div>
-          <label class="block text-sm font-semibold text-white mb-1">{t('wait_max_plays')}</label>
-          <select
-            value={maxPlays()}
-            onChange={(e) => {
-              const value = parseInt(e.currentTarget.value, 10);
-              setMaxPlays(value);
-              localStorage.setItem('maxPlays', String(value));
-            }}
-            class="w-full px-3 py-2 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
-          >
-            <For each={Array.from({ length: 100 }, (_, i) => i + 1)}>
-              {(n) => <option value={n}>{n}</option>}
-            </For>
-          </select>
-        </div>
-
         {/* チェックボックス設定 */}
-        <div class="space-y-2 pt-2">
-          <label class="inline-flex items-center gap-2 text-sm text-white w-full">
+        <div class="grid grid-cols-2 gap-2 pt-2 text-sm text-white">
+
+          {/* シャッフル */}
+          <label class="inline-flex items-center gap-2">
             <input
               type="checkbox"
               checked={shuffle()}
@@ -154,7 +152,8 @@ export default function WaitPanel(props: Props) {
             {t('wait_enable_shuffle')}
           </label>
 
-          <label class="inline-flex items-center gap-2 text-sm text-white w-full">
+          {/* キーボード操作 */}
+          <label class="inline-flex items-center gap-2">
             <input
               type="checkbox"
               checked={keyboardEnabled()}
@@ -166,7 +165,8 @@ export default function WaitPanel(props: Props) {
             {t('wait_enable_keyboard')}
           </label>
 
-          <label class="inline-flex items-center gap-2 text-sm text-white w-full">
+          {/* タップ操作 */}
+          <label class="inline-flex items-center gap-2">
             <input
               type="checkbox"
               checked={tapEnabled()}
@@ -178,22 +178,8 @@ export default function WaitPanel(props: Props) {
             {t('wait_enable_tap')}
           </label>
 
-          {/* チン音ON/OFF */}
-          <label class="inline-flex items-center gap-2 text-sm text-white w-full">
-            <input
-              type="checkbox"
-              checked={chimeEnabled()}
-              onChange={(e) => {
-                const value = e.currentTarget.checked;
-                setChimeEnabled(value);
-                localStorage.setItem('chimeEnabled', String(value));
-              }}
-            />
-            チン音を鳴らす
-          </label>
-
-          {/* カウントダウンON/OFF */}
-          <label class="inline-flex items-center gap-2 text-sm text-white w-full">
+          {/* カウントダウン有効 */}
+          <label class="inline-flex items-center gap-2">
             <input
               type="checkbox"
               checked={countdownEnabled()}
@@ -203,15 +189,30 @@ export default function WaitPanel(props: Props) {
                 localStorage.setItem('countdownEnabled', String(value));
               }}
             />
-            カウントダウンを有効にする
+            {t('wait_countdown_label')}
           </label>
+
+          {/*
+          <label class="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={chimeEnabled()}
+              onChange={(e) => {
+                const value = e.currentTarget.checked;
+                setChimeEnabled(value);
+                localStorage.setItem('chimeEnabled', String(value));
+              }}
+            />
+            {t('wait_chime_label')}
+          </label>
+*/}
 
         </div>
 
         {/* カウントダウン秒数 */}
         <Show when={countdownEnabled()}>
           <div>
-            <label class="block text-sm font-semibold text-white mb-1 mt-2">カウントダウン秒数</label>
+            <label class="block text-sm font-semibold text-white mb-1 mt-2">{t('wait_countdown_seconds')}</label>
             <select
               value={countdownSeconds()}
               onChange={(e) => {
@@ -222,21 +223,31 @@ export default function WaitPanel(props: Props) {
               class="w-full px-3 py-2 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
             >
               <For each={Array.from({ length: 8 }, (_, i) => i + 3)}>
-                {(n) => <option value={n}>{n} 秒</option>}
+                {(n) => <option value={n}>{n} {t('seconds')}</option>}
               </For>
             </select>
           </div>
         </Show>
 
-        {/* 再生ボタン */}
+        {/* カテゴリ選択ボタン＋再生ボタン：横並び */}
         <div class="pt-4">
-          <button
-            class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold w-full hover:bg-blue-700 transition"
-            onClick={handleStart}
-          >
-            ▶ {t('play')}
-          </button>
+          <div class="flex gap-4">
+            {/* カテゴリ選択ボタン */}
+            <button
+              class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold flex-1 hover:bg-green-700 transition"
+              onClick={props.onToggleCategoryPanel}
+            >
+              {t('wait_select_category_button')}
+            </button>
 
+            {/* 再生ボタン */}
+            <button
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold flex-1 hover:bg-blue-700 transition"
+              onClick={handleStart}
+            >
+              ▶ {t('play')}
+            </button>
+          </div>
         </div>
       </div>
     </div>
