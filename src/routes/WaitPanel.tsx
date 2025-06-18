@@ -4,6 +4,7 @@ import type { Setter } from 'solid-js';
 import type { ModeType } from '@/lib/constants';
 import { panelSelectedCategories } from '@/stores/categoryStore';
 import { t } from '@/stores/i18nStore';
+import { chimeEnabled, setChimeEnabled } from '@/stores/playSettings';
 
 type Props = {
   setMode: Setter<ModeType>;
@@ -20,7 +21,6 @@ export default function WaitPanel(props: Props) {
   const [maxPlays, setMaxPlays] = createSignal(10);
   const [countdownEnabled, setCountdownEnabled] = createSignal(true); // ✅ 初期値オン
   const [countdownSeconds, setCountdownSeconds] = createSignal(3);    // ✅ 初期値3秒
-  const [chimeEnabled, setChimeEnabled] = createSignal(false);        // ✅ 初期値オフ
   const updateDuration = (m: number, s: number) => {
     const str = `${m}:${s.toString().padStart(2, '0')}`;
     localStorage.setItem('duration', str);
@@ -192,7 +192,7 @@ export default function WaitPanel(props: Props) {
             {t('wait_countdown_label')}
           </label>
 
-          {/*
+          {/* チャイム音 */}
           <label class="inline-flex items-center gap-2">
             <input
               type="checkbox"
@@ -205,7 +205,6 @@ export default function WaitPanel(props: Props) {
             />
             {t('wait_chime_label')}
           </label>
-*/}
 
         </div>
 

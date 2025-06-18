@@ -30,6 +30,7 @@ import {
 import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 import { addToast } from '@/components/Toast';
 import { t } from '@/stores/i18nStore';
+import { chimeEnabled, setChimeEnabled } from '@/stores/playSettings';
 
 export default function PlayScreen() {
   const [viewMode, setViewMode] = createSignal<'play' | 'manage'>('play');
@@ -83,14 +84,26 @@ export default function PlayScreen() {
     }
   };
 
+  let tenSecondChimePlayed = false; // ✅ グローバルに一度だけ再生フラグ
+
   const handleTick = () => {
     setTimeLeft((prev) => {
-      if (prev <= 1) {
+      const next = prev - 1;
+
+      // ✅ 10秒前に一度だけ音を鳴らす
+      if (next === 10 && !tenSecondChimePlayed && chimeEnabled()) {
+        const audio = new Audio('/sounds/two-bell-356853.mp3');
+        audio.play().catch(console.warn);
+      }
+
+      if (next <= 0) {
         stopTimer();
-        const next = imageIndex() + 1;
+        tenSecondChimePlayed = false; // ✅ リセット
+
+        const nextIndex = imageIndex() + 1;
         const list = playList();
-        if (list[next] === END_MARKER) {
-          setImageIndex(next);
+        if (list[nextIndex] === END_MARKER) {
+          setImageIndex(nextIndex);
           setMode(MODE.PAUSED);
           return 0;
         }
@@ -99,7 +112,7 @@ export default function PlayScreen() {
         const countdownSec = parseInt(localStorage.getItem('countdownSeconds') || '3');
 
         const nextImage = () => {
-          setImageIndex(next);
+          setImageIndex(nextIndex);
           setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
           startTimer();
         };
@@ -112,7 +125,8 @@ export default function PlayScreen() {
 
         return 0;
       }
-      return prev - 1;
+
+      return next;
     });
   };
 
@@ -294,12 +308,6 @@ export default function PlayScreen() {
     setIsCountingDown(true);
     setCountdownDisplay(seconds); // ✅ 初期値セット
 
-    const playSound = localStorage.getItem('chimeEnabled') === 'true';
-    if (playSound) {
-      const audio = new Audio('/chime.mp3');
-      audio.play().catch(console.warn);
-    }
-
     // ✅ カウント表示だけ減らす
     countdownIntervalId = window.setInterval(() => {
       setCountdownDisplay((prev) => {
@@ -340,6 +348,9 @@ export default function PlayScreen() {
   };
 
   onMount(() => {
+    const chime = localStorage.getItem('chimeEnabled');
+    setChimeEnabled(chime !== 'false'); // ✅ 初期値：ON
+
     const keyHandler = (e: KeyboardEvent) => {
       const enabled = localStorage.getItem('keyboardEnabled') === 'true';
       const tag = document.activeElement?.tagName;
