@@ -92,7 +92,7 @@ export default function PlayScreen() {
 
       // ✅ 10秒前に一度だけ音を鳴らす
       if (next === 10 && !tenSecondChimePlayed && chimeEnabled()) {
-        const audio = new Audio('/sounds/two-bell-356853.mp3');
+        const audio = new Audio('/sounds/ding-small-bell-sfx-233008.mp3');
         audio.play().catch(console.warn);
       }
 
