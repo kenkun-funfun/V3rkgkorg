@@ -53,10 +53,17 @@ export default function PlayScreen() {
   const [countdownDisplay, setCountdownDisplay] = createSignal<number | null>(null);
 
   const END_MARKER = '__END__';
+  const isEndImage = () => {
+    const idx = imageIndex();
+    if (idx < 0 || idx >= playList().length) return false;
+    return playList()[idx] === END_MARKER;
+  };
+
   const currentImage = () => {
     const img = playList()[imageIndex()];
     return img === END_MARKER ? null : img;
   };
+
   const currentIndex = () => imageIndex();
   const totalCount = () => playList().length;
 
@@ -273,7 +280,8 @@ export default function PlayScreen() {
   };
 
   //Countdown
-  let countdownTimeoutId: number | null = null; // ✅ グローバルにタイマーIDを保持
+  let countdownTimeoutId: number | null = null;     // ✅ タイムアウト用
+  let countdownIntervalId: number | null = null;    // ✅ インターバル用（追加）
 
   const startCountdown = (seconds: number, callback: () => void) => {
     cancelCountdown(); // ✅ すでに実行中ならキャンセル
@@ -293,10 +301,13 @@ export default function PlayScreen() {
     }
 
     // ✅ カウント表示だけ減らす
-    const countdownInterval = setInterval(() => {
-      setCountdownDisplay(prev => {
+    countdownIntervalId = window.setInterval(() => {
+      setCountdownDisplay((prev) => {
         if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval);
+          if (countdownIntervalId !== null) {
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+          }
           return null;
         }
         return prev - 1;
@@ -307,6 +318,10 @@ export default function PlayScreen() {
       setIsCountingDown(false);
       setCountdownDisplay(null);
       countdownTimeoutId = null;
+      if (countdownIntervalId !== null) {
+        clearInterval(countdownIntervalId);
+        countdownIntervalId = null;
+      }
       callback();
     }, seconds * 1000);
   };
@@ -315,6 +330,10 @@ export default function PlayScreen() {
     if (countdownTimeoutId !== null) {
       clearTimeout(countdownTimeoutId);
       countdownTimeoutId = null;
+    }
+    if (countdownIntervalId !== null) {
+      clearInterval(countdownIntervalId);
+      countdownIntervalId = null;
     }
     setIsCountingDown(false);
     setCountdownDisplay(null);
@@ -326,6 +345,19 @@ export default function PlayScreen() {
       const tag = document.activeElement?.tagName;
       if (!enabled || tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (showDeletePanel()) return;
+
+      const end = isEndImage(); // ✅ 安全なEND判定
+
+      if (end) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          handlePrev();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          handleReset();
+        }
+        return; // ✅ END画像では他キーは無視
+      }
 
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
@@ -410,6 +442,7 @@ export default function PlayScreen() {
               if (showFilterPanel() || showDeletePanel()) return;
               if (localStorage.getItem('tapEnabled') !== 'true') return;
               if (mode() !== MODE.RUNNING && mode() !== MODE.PAUSED) return;
+              if (isEndImage()) return;
 
               const tag = (e.target as HTMLElement).tagName;
               if (["INPUT", "TEXTAREA", "BUTTON"].includes(tag)) return;
@@ -480,6 +513,7 @@ export default function PlayScreen() {
             isFlippedX={isFlippedX()}
             isFlippedY={isFlippedY()}
             countdown={() => isCountingDown()}
+            isEnd={isEndImage()}
           />
         </div>
       </Show>
