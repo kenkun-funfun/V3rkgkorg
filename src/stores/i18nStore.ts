@@ -122,6 +122,8 @@ export const i18n = {
         upload_success_suffix: '枚の画像を追加しました',
         upload_error_suffix: '枚の画像の追加に失敗しました',
         image_display_finished: '終了しました', // ja
+        header_old_version: '旧バージョン',
+        feedback_label: 'バグ報告・フィードバック',
 
     },
     en: {
@@ -223,6 +225,9 @@ export const i18n = {
         upload_success_suffix: 'images added',
         upload_error_suffix: 'images failed to add',
         image_display_finished: 'Finished', // en
+        header_old_version: 'Classic Version',
+        feedback_label: 'Bug Report / Feedback',
+
     },
 };
 

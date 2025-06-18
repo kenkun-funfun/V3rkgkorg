@@ -109,7 +109,14 @@ export default function WaitPanel(props: Props) {
                 class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
               >
                 <For each={[...Array(61).keys()]}>
-                  {(v) => <option value={v}>{v} {t('seconds')}</option>}
+                  {(v) => (
+                    <option
+                      value={v}
+                      disabled={minute() === 0 && v === 0} // ✅ 0:00 を禁止
+                    >
+                      {v} {t('seconds')}
+                    </option>
+                  )}
                 </For>
               </select>
             </div>

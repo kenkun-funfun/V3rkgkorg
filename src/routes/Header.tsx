@@ -77,6 +77,31 @@ const Header: Component<Props> = (props) => {
             >
               {t('header_category_manage')}
             </button>
+            <a
+              href="https://plus.rkgk.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-blue-400 hover:underline hidden sm:inline"
+            >
+              {t('header_old_version')}
+            </a>
+            <a
+              href="https://x.com/rkgk_org"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-blue-400 hover:underline hidden sm:inline"
+            >
+              X / @rkgk_org
+            </a>
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSd0tRbu447oHiTCCEXh0BSwB2fzDHi2nXqP43y4WSUbxumZqg/viewform?usp=sharing&ouid=101563540129971203529" // ← フォームURLをここに
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-blue-400 hover:underline hidden sm:inline"
+            >
+              {t('feedback_label')}
+            </a>
+
           </Show>
         </div>
       </div>
@@ -124,12 +149,28 @@ const Header: Component<Props> = (props) => {
             {t('header_category_manage')}
           </button>
           <a
+            href="https://plus.rkgk.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full block text-left text-blue-400 hover:underline"
+          >
+            {t('header_old_version')}
+          </a>
+          <a
             href="https://x.com/rkgk_org"
             target="_blank"
             rel="noopener noreferrer"
             class="w-full block text-left text-blue-400 hover:underline"
           >
             X / @rkgk_org
+          </a>
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSd0tRbu447oHiTCCEXh0BSwB2fzDHi2nXqP43y4WSUbxumZqg/viewform?usp=sharing&ouid=101563540129971203529" // ← フォームURLをここに
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full block text-left text-blue-400 hover:underline"
+          >
+            {t('feedback_label')}
           </a>
         </div>
       </Show>

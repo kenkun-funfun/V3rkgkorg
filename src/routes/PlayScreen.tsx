@@ -120,7 +120,9 @@ export default function PlayScreen() {
         if (countdownEnabled) {
           startCountdown(countdownSec, nextImage);
         } else {
-          nextImage();
+          setTimeout(() => {
+            nextImage(); // ✅ ワンクッション置いて呼び出す
+          }, 0);
         }
 
         return 0;
