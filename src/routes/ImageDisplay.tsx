@@ -10,6 +10,8 @@ type Props = {
   isFlippedY: boolean;
   filter: string;
   onTap?: () => void;
+  isCountingDown?: boolean;
+  countdownValue: () => number | null;
 };
 
 export default function ImageDisplay(props: Props) {
@@ -61,6 +63,17 @@ export default function ImageDisplay(props: Props) {
           <div class="text-gray-400">{t('image_display_unavailable')}</div>
         </Match>
       </Switch>
+      <Show when={props.isCountingDown}>
+        <div class="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
+          <div class="text-white text-2xl md:text-3xl font-bold mb-4">
+            次のポーズまで…
+          </div>
+          <div class="text-white text-5xl font-extrabold">
+            {props.countdownValue()}
+          </div>
+        </div>
+      </Show>
+
     </div>
   );
 }

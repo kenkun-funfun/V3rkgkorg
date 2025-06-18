@@ -49,6 +49,8 @@ export default function PlayScreen() {
   const [showLoadModal, setShowLoadModal] = createSignal(false);
   const [showAddModal, setShowAddModal] = createSignal(false);
   const [showDuplicateModal, setShowDuplicateModal] = createSignal(false);
+  const [isCountingDown, setIsCountingDown] = createSignal(false);
+  const [countdownDisplay, setCountdownDisplay] = createSignal<number | null>(null);
 
   const END_MARKER = '__END__';
   const currentImage = () => {
@@ -77,8 +79,31 @@ export default function PlayScreen() {
   const handleTick = () => {
     setTimeLeft((prev) => {
       if (prev <= 1) {
-        handleNext();
-        return parseDuration(localStorage.getItem('duration') || '60');
+        stopTimer();
+        const next = imageIndex() + 1;
+        const list = playList();
+        if (list[next] === END_MARKER) {
+          setImageIndex(next);
+          setMode(MODE.PAUSED);
+          return 0;
+        }
+
+        const countdownEnabled = localStorage.getItem('countdownEnabled') !== 'false';
+        const countdownSec = parseInt(localStorage.getItem('countdownSeconds') || '3');
+
+        const nextImage = () => {
+          setImageIndex(next);
+          setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
+          startTimer();
+        };
+
+        if (countdownEnabled) {
+          startCountdown(countdownSec, nextImage);
+        } else {
+          nextImage();
+        }
+
+        return 0;
       }
       return prev - 1;
     });
@@ -99,20 +124,36 @@ export default function PlayScreen() {
 
     const shuffled = shuffle ? [...allImages].sort(() => Math.random() - 0.5) : allImages;
     const max = parseInt(localStorage.getItem('maxPlays') || '100');
-    const finalList = (shuffled.slice(0, max)).filter(Boolean);
+    const finalList = shuffled.slice(0, max).filter(Boolean);
 
     setPanelSelectedCategories(selected);
     const safeList = finalList.filter((v): v is string => typeof v === 'string');
     safeList.push(END_MARKER);
     setPlayList(safeList);
-    setImageIndex(0);
-    setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
+    setImageIndex(-1); // ✅ 最初のカウントダウンのために -1 にしておく
     setShowCategoryPanel(false);
     setMode(MODE.RUNNING);
-    startTimer();
+
+    const duration = parseDuration(localStorage.getItem('duration') || '60');
+    const countdownEnabled = localStorage.getItem('countdownEnabled') !== 'false';
+    const countdownSeconds = parseInt(localStorage.getItem('countdownSeconds') || '3');
+
+    const begin = () => {
+      setImageIndex(0);
+      setTimeLeft(duration);
+      startTimer();
+    };
+
+    if (countdownEnabled && countdownSeconds > 0) {
+      startCountdown(countdownSeconds, begin);
+    } else {
+      begin();
+    }
   };
 
+
   const handlePause = () => {
+    cancelCountdown();
     stopTimer();
     setMode(MODE.PAUSED);
     setShowPausedOverlay(true);
@@ -130,6 +171,7 @@ export default function PlayScreen() {
   };
 
   const handleReset = () => {
+    cancelCountdown();
     stopTimer();
     setImageIndex(0);
     setIsFlippedX(false);
@@ -151,6 +193,8 @@ export default function PlayScreen() {
   const handleNext = () => {
     if (!debounceCheck() || showDeletePanel()) return;
 
+    cancelCountdown();
+
     const next = imageIndex() + 1;
     const list = playList();
     if (next >= list.length) return;
@@ -163,15 +207,24 @@ export default function PlayScreen() {
       setMode(MODE.PAUSED);
     } else {
       setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
+      if (mode() === MODE.RUNNING) {
+        startTimer(); // ✅ 一時停止中は再始動しないように条件付き
+      }
     }
   };
 
-
   const handlePrev = () => {
     if (!debounceCheck() || showDeletePanel()) return;
+
+    cancelCountdown();
+
     const prev = Math.max(imageIndex() - 1, 0);
     setImageIndex(prev);
     setTimeLeft(parseDuration(localStorage.getItem('duration') || '60'));
+
+    if (mode() === MODE.RUNNING) {
+      startTimer(); // ✅ 再生中のみタイマー再開
+    }
   };
 
   const handleFlipX = () => setIsFlippedX((prev) => !prev);
@@ -217,6 +270,54 @@ export default function PlayScreen() {
 
     setShowDeletePanel(false);
     addToast(t('play_deleted'), 'success');
+  };
+
+  //Countdown
+  let countdownTimeoutId: number | null = null; // ✅ グローバルにタイマーIDを保持
+
+  const startCountdown = (seconds: number, callback: () => void) => {
+    cancelCountdown(); // ✅ すでに実行中ならキャンセル
+
+    if (seconds <= 0) {
+      callback();
+      return;
+    }
+
+    setIsCountingDown(true);
+    setCountdownDisplay(seconds); // ✅ 初期値セット
+
+    const playSound = localStorage.getItem('chimeEnabled') === 'true';
+    if (playSound) {
+      const audio = new Audio('/chime.mp3');
+      audio.play().catch(console.warn);
+    }
+
+    // ✅ カウント表示だけ減らす
+    const countdownInterval = setInterval(() => {
+      setCountdownDisplay(prev => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdownInterval);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    countdownTimeoutId = window.setTimeout(() => {
+      setIsCountingDown(false);
+      setCountdownDisplay(null);
+      countdownTimeoutId = null;
+      callback();
+    }, seconds * 1000);
+  };
+
+  const cancelCountdown = () => {
+    if (countdownTimeoutId !== null) {
+      clearTimeout(countdownTimeoutId);
+      countdownTimeoutId = null;
+    }
+    setIsCountingDown(false);
+    setCountdownDisplay(null);
   };
 
   onMount(() => {
@@ -327,6 +428,8 @@ export default function PlayScreen() {
                 isFlippedX={isFlippedX()}
                 isFlippedY={isFlippedY()}
                 filter={filter()}
+                isCountingDown={isCountingDown()} // ✅ 新規追加
+                countdownValue={countdownDisplay}
               />
             }>
               <WaitPanel
@@ -376,6 +479,7 @@ export default function PlayScreen() {
             onOpenCategoryManager={() => setViewMode('manage')}
             isFlippedX={isFlippedX()}
             isFlippedY={isFlippedY()}
+            countdown={() => isCountingDown()}
           />
         </div>
       </Show>

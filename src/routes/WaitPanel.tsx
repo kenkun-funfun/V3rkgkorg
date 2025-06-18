@@ -1,5 +1,5 @@
 // src/routes/WaitPanel.tsx
-import { createSignal, onMount, For } from 'solid-js';
+import { createSignal, onMount, For, Show } from 'solid-js';
 import type { Setter } from 'solid-js';
 import type { ModeType } from '@/lib/constants';
 import { panelSelectedCategories } from '@/stores/categoryStore';
@@ -18,7 +18,9 @@ export default function WaitPanel(props: Props) {
   const [keyboardEnabled, setKeyboardEnabled] = createSignal(true);
   const [tapEnabled, setTapEnabled] = createSignal(true);
   const [maxPlays, setMaxPlays] = createSignal(10);
-
+  const [countdownEnabled, setCountdownEnabled] = createSignal(true); // ✅ 初期値オン
+  const [countdownSeconds, setCountdownSeconds] = createSignal(3);    // ✅ 初期値3秒
+  const [chimeEnabled, setChimeEnabled] = createSignal(false);        // ✅ 初期値オフ
   const updateDuration = (m: number, s: number) => {
     const str = `${m}:${s.toString().padStart(2, '0')}`;
     localStorage.setItem('duration', str);
@@ -44,6 +46,15 @@ export default function WaitPanel(props: Props) {
     const m = localStorage.getItem('maxPlays');
     if (m !== null && !isNaN(parseInt(m))) setMaxPlays(parseInt(m));
 
+    const ce = localStorage.getItem('countdownEnabled');
+    if (ce !== null) setCountdownEnabled(ce === 'true');
+
+    const cd = localStorage.getItem('countdownSeconds');
+    if (cd !== null) setCountdownSeconds(parseInt(cd));
+
+    const ch = localStorage.getItem('chimeEnabled');
+    if (ch !== null) setChimeEnabled(ch === 'true');
+
   });
 
 
@@ -58,6 +69,9 @@ export default function WaitPanel(props: Props) {
     localStorage.setItem('keyboardEnabled', String(keyboardEnabled()));
     localStorage.setItem('tapEnabled', String(tapEnabled()));
     localStorage.setItem('maxPlays', String(maxPlays()));
+    localStorage.setItem('countdownEnabled', String(countdownEnabled()));
+    localStorage.setItem('countdownSeconds', String(countdownSeconds()));
+    localStorage.setItem('chimeEnabled', String(chimeEnabled()));
     props.onStart(selected);
   };
 
@@ -163,7 +177,56 @@ export default function WaitPanel(props: Props) {
             />
             {t('wait_enable_tap')}
           </label>
+
+          {/* チン音ON/OFF */}
+          <label class="inline-flex items-center gap-2 text-sm text-white w-full">
+            <input
+              type="checkbox"
+              checked={chimeEnabled()}
+              onChange={(e) => {
+                const value = e.currentTarget.checked;
+                setChimeEnabled(value);
+                localStorage.setItem('chimeEnabled', String(value));
+              }}
+            />
+            チン音を鳴らす
+          </label>
+
+          {/* カウントダウンON/OFF */}
+          <label class="inline-flex items-center gap-2 text-sm text-white w-full">
+            <input
+              type="checkbox"
+              checked={countdownEnabled()}
+              onChange={(e) => {
+                const value = e.currentTarget.checked;
+                setCountdownEnabled(value);
+                localStorage.setItem('countdownEnabled', String(value));
+              }}
+            />
+            カウントダウンを有効にする
+          </label>
+
         </div>
+
+        {/* カウントダウン秒数 */}
+        <Show when={countdownEnabled()}>
+          <div>
+            <label class="block text-sm font-semibold text-white mb-1 mt-2">カウントダウン秒数</label>
+            <select
+              value={countdownSeconds()}
+              onChange={(e) => {
+                const value = parseInt(e.currentTarget.value, 10);
+                setCountdownSeconds(value);
+                localStorage.setItem('countdownSeconds', String(value));
+              }}
+              class="w-full px-3 py-2 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+            >
+              <For each={Array.from({ length: 8 }, (_, i) => i + 3)}>
+                {(n) => <option value={n}>{n} 秒</option>}
+              </For>
+            </select>
+          </div>
+        </Show>
 
         {/* 再生ボタン */}
         <div class="pt-4">
