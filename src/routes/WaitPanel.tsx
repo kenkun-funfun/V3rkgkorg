@@ -115,140 +115,141 @@ export default function WaitPanel(props: Props) {
             </div>
           </div>
 
-          {/* Number of images */}
-          <div>
-            <label class="block text-sm font-semibold text-white mb-1">
-              {t('wait_max_plays')}
+          {/* Number of images + Countdown Settings (responsive grid) */}
+          <div class="grid grid-cols-2 sm:grid-cols-1 gap-4">
+            {/* Number of images */}
+            <div>
+              <label class="block text-sm font-semibold text-white mb-1">
+                {t('wait_max_plays')}
+              </label>
+              <select
+                value={maxPlays()}
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value, 10);
+                  setMaxPlays(value);
+                  localStorage.setItem('maxPlays', String(value));
+                }}
+                class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+              >
+                <For each={Array.from({ length: 100 }, (_, i) => i + 1)}>
+                  {(n) => <option value={n}>{n}</option>}
+                </For>
+              </select>
+            </div>
+
+            {/* Countdown toggle + seconds */}
+            <div>
+              <label class="inline-flex items-center gap-2 mb-2 text-sm text-white">
+                <input
+                  type="checkbox"
+                  checked={countdownEnabled()}
+                  onChange={(e) => {
+                    const value = e.currentTarget.checked;
+                    setCountdownEnabled(value);
+                    localStorage.setItem('countdownEnabled', String(value));
+                  }}
+                />
+                {t('wait_countdown_label')}
+              </label>
+              <select
+                value={countdownSeconds()}
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value, 10);
+                  setCountdownSeconds(value);
+                  localStorage.setItem('countdownSeconds', String(value));
+                }}
+                class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+              >
+                <For each={Array.from({ length: 8 }, (_, i) => i + 3)}>
+                  {(n) => <option value={n}>{n} {t('seconds')}</option>}
+                </For>
+              </select>
+            </div>
+          </div>
+
+          {/* チェックボックス設定 */}
+          <div class="grid grid-cols-2 gap-2 pt-2 text-sm text-white">
+
+            {/* シャッフル */}
+            <label class="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={shuffle()}
+                onChange={(e) => {
+                  setShuffle(e.currentTarget.checked);
+                  localStorage.setItem('shuffle', String(e.currentTarget.checked));
+                }}
+              />
+              {t('wait_enable_shuffle')}
             </label>
-            <select
-              value={maxPlays()}
-              onChange={(e) => {
-                const value = parseInt(e.currentTarget.value, 10);
-                setMaxPlays(value);
-                localStorage.setItem('maxPlays', String(value));
-              }}
-              class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
-            >
-              <For each={Array.from({ length: 100 }, (_, i) => i + 1)}>
-                {(n) => <option value={n}>{n}</option>}
-              </For>
-            </select>
+
+            {/* キーボード操作 */}
+            <label class="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={keyboardEnabled()}
+                onChange={(e) => {
+                  setKeyboardEnabled(e.currentTarget.checked);
+                  localStorage.setItem('keyboardEnabled', String(e.currentTarget.checked));
+                }}
+              />
+              {t('wait_enable_keyboard')}
+            </label>
+
+            {/* タップ操作 */}
+            <label class="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={tapEnabled()}
+                onChange={(e) => {
+                  setTapEnabled(e.currentTarget.checked);
+                  localStorage.setItem('tapEnabled', String(e.currentTarget.checked));
+                }}
+              />
+              {t('wait_enable_tap')}
+            </label>
+
+
+            {/* チャイム音 */}
+            <label class="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={chimeEnabled()}
+                onChange={(e) => {
+                  const value = e.currentTarget.checked;
+                  setChimeEnabled(value);
+                  localStorage.setItem('chimeEnabled', String(value));
+                }}
+              />
+              {t('wait_chime_label')}
+            </label>
+
           </div>
-        </div>
 
-        {/* チェックボックス設定 */}
-        <div class="grid grid-cols-2 gap-2 pt-2 text-sm text-white">
 
-          {/* シャッフル */}
-          <label class="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={shuffle()}
-              onChange={(e) => {
-                setShuffle(e.currentTarget.checked);
-                localStorage.setItem('shuffle', String(e.currentTarget.checked));
-              }}
-            />
-            {t('wait_enable_shuffle')}
-          </label>
+          {/* カテゴリ選択ボタン＋再生ボタン：横並び */}
+          <div class="pt-4">
+            <div class="flex gap-4">
+              {/* カテゴリ選択ボタン */}
+              <button
+                class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold flex-1 hover:bg-green-700 transition"
+                onClick={props.onToggleCategoryPanel}
+              >
+                {t('wait_select_category_button')}
+              </button>
 
-          {/* キーボード操作 */}
-          <label class="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={keyboardEnabled()}
-              onChange={(e) => {
-                setKeyboardEnabled(e.currentTarget.checked);
-                localStorage.setItem('keyboardEnabled', String(e.currentTarget.checked));
-              }}
-            />
-            {t('wait_enable_keyboard')}
-          </label>
-
-          {/* タップ操作 */}
-          <label class="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={tapEnabled()}
-              onChange={(e) => {
-                setTapEnabled(e.currentTarget.checked);
-                localStorage.setItem('tapEnabled', String(e.currentTarget.checked));
-              }}
-            />
-            {t('wait_enable_tap')}
-          </label>
-
-          {/* カウントダウン有効 */}
-          <label class="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={countdownEnabled()}
-              onChange={(e) => {
-                const value = e.currentTarget.checked;
-                setCountdownEnabled(value);
-                localStorage.setItem('countdownEnabled', String(value));
-              }}
-            />
-            {t('wait_countdown_label')}
-          </label>
-
-          {/* チャイム音 */}
-          <label class="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={chimeEnabled()}
-              onChange={(e) => {
-                const value = e.currentTarget.checked;
-                setChimeEnabled(value);
-                localStorage.setItem('chimeEnabled', String(value));
-              }}
-            />
-            {t('wait_chime_label')}
-          </label>
-
-        </div>
-
-        {/* カウントダウン秒数 */}
-        <Show when={countdownEnabled()}>
-          <div>
-            <label class="block text-sm font-semibold text-white mb-1 mt-2">{t('wait_countdown_seconds')}</label>
-            <select
-              value={countdownSeconds()}
-              onChange={(e) => {
-                const value = parseInt(e.currentTarget.value, 10);
-                setCountdownSeconds(value);
-                localStorage.setItem('countdownSeconds', String(value));
-              }}
-              class="w-full px-3 py-2 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
-            >
-              <For each={Array.from({ length: 8 }, (_, i) => i + 3)}>
-                {(n) => <option value={n}>{n} {t('seconds')}</option>}
-              </For>
-            </select>
-          </div>
-        </Show>
-
-        {/* カテゴリ選択ボタン＋再生ボタン：横並び */}
-        <div class="pt-4">
-          <div class="flex gap-4">
-            {/* カテゴリ選択ボタン */}
-            <button
-              class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold flex-1 hover:bg-green-700 transition"
-              onClick={props.onToggleCategoryPanel}
-            >
-              {t('wait_select_category_button')}
-            </button>
-
-            {/* 再生ボタン */}
-            <button
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold flex-1 hover:bg-blue-700 transition"
-              onClick={handleStart}
-            >
-              ▶ {t('play')}
-            </button>
+              {/* 再生ボタン */}
+              <button
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold flex-1 hover:bg-blue-700 transition"
+                onClick={handleStart}
+              >
+                ▶ {t('play')}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
   );
 }

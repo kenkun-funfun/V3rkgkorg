@@ -2,7 +2,7 @@
 import type { Component } from 'solid-js';
 import { MODE } from '@/lib/constants';
 import type { ModeType } from '@/lib/constants'; // ✅ こっちが正しい型
-import { Timer, X, House, Languages, Sun, Moon } from 'lucide-solid';
+import { Timer, X, Languages, Sun, Moon } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { A } from '@solidjs/router'; // ← 上部に追加されていなければこれも忘れずに
 import { themeStore } from '@/stores/themeStore';
@@ -41,7 +41,6 @@ const Header: Component<Props> = (props) => {
                 : 'border-white hover:bg-white hover:text-black text-white'}`}
             onClick={props.onBackToPlay}
           >
-            <House size={16} />
             {t('play_back_to_play')}
           </button>
 
