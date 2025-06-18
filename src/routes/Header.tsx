@@ -1,17 +1,17 @@
 // src/routes/Header.tsx
 import type { Component } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import { MODE } from '@/lib/constants';
-import type { ModeType } from '@/lib/constants'; // ✅ こっちが正しい型
-import { Timer, X, Languages, Sun, Moon } from 'lucide-solid';
-import { Show } from 'solid-js';
-import { A } from '@solidjs/router'; // ← 上部に追加されていなければこれも忘れずに
+import type { ModeType } from '@/lib/constants';
+import { Timer, X, Languages, Sun, Moon, Menu } from 'lucide-solid';
 import { themeStore } from '@/stores/themeStore';
 import { lang, setLang, t } from '@/stores/i18nStore';
 
 const { theme, toggleTheme } = themeStore;
+const [menuOpen, setMenuOpen] = createSignal(false);
 
 type Props = {
-  mode: ModeType; // ✅ これが正しい
+  mode: ModeType;
   timeLeft: number;
   onOpenCategoryManager: () => void;
   onReset?: () => void;
@@ -28,81 +28,111 @@ const Header: Component<Props> = (props) => {
     return `${m}:${s}`;
   };
 
+  const handleTitleClick = () => {
+    if (props.mode === MODE.RUNNING || props.mode === MODE.PAUSED) {
+      props.onReset?.();
+    }
+    props.onBackToPlay();
+  };
+
   return (
-    <header class="flex justify-center items-center px-4 py-2 bg-zinc-900 text-white border-b border-white">
-      <div class="flex flex-wrap justify-center items-center gap-3 text-xs select-none">
-        {/* 左：操作ボタン（START_SCREEN時のみ） */}
+    <header class="relative flex justify-between items-center px-4 py-2 bg-zinc-900 text-white border-b border-white">
+      {/* 左：ハンバーガー or PCボタン + タイトル */}
+      <div class="flex items-center gap-3">
+        {/* モバイル：ハンバーガー */}
         <Show when={props.mode === MODE.START_SCREEN}>
-          {/* 戻るボタン */}
-          <button
-            class={`flex items-center gap-1 px-2 py-1 rounded border text-sm font-semibold select-none
-  ${props.viewMode === 'play'
-                ? 'bg-white text-black border-white'
-                : 'border-white hover:bg-white hover:text-black text-white'}`}
-            onClick={props.onBackToPlay}
-          >
-            {t('play_back_to_play')}
-          </button>
-
-          {/* カテゴリ管理ボタン */}
-          <button
-            class={`flex items-center gap-1 px-2 py-1 rounded border text-sm font-semibold select-none
-  ${props.viewMode === 'manage'
-                ? 'bg-white text-black border-white'
-                : 'border-white hover:bg-white hover:text-black text-white'}`}
-            onClick={props.onOpenCategoryManager}
-          >
-            {t('header_category_manage')}
-          </button>
-
-          {/* テーマ切り替え */}
-          <button
-            onClick={toggleTheme}
-            class="flex items-center justify-center px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
-            title="テーマ切り替え"
-          >
-            <Show when={theme() === 'dark'} fallback={<Moon size={16} />}>
-              <Sun size={16} />
-            </Show>
-          </button>
-
-          {/* 言語切替 */}
-          <button
-            class="flex items-center gap-1 px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
-            onClick={() => setLang(lang() === 'ja' ? 'en' : 'ja')}
-            title={t('language')}
-          >
-            <Languages size={14} />
-            {lang() === 'ja' ? 'ja' : 'en'}
-          </button>
-
-        </Show>
-
-        {/* 中央：タイマーとカウント */}
-        <Show when={props.mode !== MODE.START_SCREEN}>
-          <div class="flex items-center gap-3">
-            <div class="flex items-center gap-1">
-              <Timer size={14} />
-              <span>{t('header_remaining')} {formatTime(props.timeLeft)}</span>
-            </div>
-            <Show when={props.mode === MODE.RUNNING && props.totalCount}>
-              <div>
-                {Math.min(props.currentIndex! + 1, props.totalCount - 1)} / {props.totalCount - 1}
-              </div>
-            </Show>
+          <div class="sm:hidden">
+            <button onClick={() => setMenuOpen(!menuOpen())}>
+              <Show when={menuOpen()} fallback={<Menu size={20} />}>
+                <X size={20} />
+              </Show>
+            </button>
           </div>
         </Show>
 
-        {/* 右：リセットボタン */}
-        <Show when={props.mode !== MODE.START_SCREEN && props.onReset}>
+        {/* モバイル：タイトル */}
+        <button
+          class="text-lg font-bold tracking-wide sm:hidden hover:text-zinc-300 transition"
+          onClick={handleTitleClick}
+        >
+          RKGK.ORG
+        </button>
+
+        {/* PC：タイトル & 管理ボタン */}
+        <div class="hidden sm:flex items-center gap-3">
           <button
-            class="px-2 py-1 rounded border border-white hover:bg-white hover:text-black"
-            onClick={props.onReset}
+            class="text-lg font-bold tracking-wide text-white hover:text-zinc-300 transition"
+            onClick={handleTitleClick}
           >
-            <X size={16} />
+            RKGK.ORG
           </button>
-        </Show>
+
+          <Show when={props.mode === MODE.START_SCREEN}>
+            <button
+              class={`flex items-center gap-1 px-2 py-1 rounded border text-sm font-semibold
+              ${props.viewMode === 'manage'
+                  ? 'bg-white text-black border-white'
+                  : 'border-white hover:bg-white hover:text-black text-white'}`}
+              onClick={props.onOpenCategoryManager}
+            >
+              {t('header_category_manage')}
+            </button>
+          </Show>
+        </div>
       </div>
+
+      {/* 中央：タイマー表示 */}
+      <Show when={props.mode !== MODE.START_SCREEN}>
+        <div class="flex items-center gap-3 text-sm">
+          <div class="flex items-center gap-1">
+            <Timer size={14} />
+            <span>{t('header_remaining')} {formatTime(props.timeLeft)}</span>
+          </div>
+          <Show when={props.mode === MODE.RUNNING && props.totalCount}>
+            <div>
+              {Math.min(props.currentIndex! + 1, props.totalCount - 1)} / {props.totalCount - 1}
+            </div>
+          </Show>
+        </div>
+      </Show>
+
+      {/* 右：テーマ・言語切替 */}
+      <div class="flex items-center gap-2">
+        <button
+          onClick={toggleTheme}
+          class="flex items-center justify-center px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
+          title="テーマ切り替え"
+        >
+          <Show when={theme() === 'dark'} fallback={<Moon size={16} />}>
+            <Sun size={16} />
+          </Show>
+        </button>
+        <button
+          class="flex items-center gap-1 px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
+          onClick={() => setLang(lang() === 'ja' ? 'en' : 'ja')}
+          title={t('language')}
+        >
+          <Languages size={14} />
+          {lang() === 'ja' ? 'ja' : 'en'}
+        </button>
+      </div>
+
+      {/* モバイルメニュー（ハンバーガー展開） */}
+      <Show when={menuOpen()}>
+        <div class="absolute top-full left-0 w-full bg-zinc-800 border-t-2 border-zinc-500 sm:hidden z-50 p-4 space-y-2 text-sm shadow-lg">
+          <button class="w-full text-left" onClick={() => { props.onOpenCategoryManager(); setMenuOpen(false); }}>
+            {t('header_category_manage')}
+          </button>
+          <a
+            href="https://x.com/rkgk_org"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full block text-left text-blue-400 hover:underline"
+          >
+            X / @rkgk_org
+          </a>
+        </div>
+      </Show>
     </header>
   );
 };
