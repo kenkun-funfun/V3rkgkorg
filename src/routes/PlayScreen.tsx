@@ -31,9 +31,10 @@ import { resizeAndConvertToBase64, generateHash } from '@/lib/utils';
 import { addToast } from '@/components/Toast';
 import { t } from '@/stores/i18nStore';
 import { chimeEnabled, setChimeEnabled } from '@/stores/playSettings';
+import DocumentPage from '@/routes/DocumentPage'; // ✅ 追加
 
 export default function PlayScreen() {
-  const [viewMode, setViewMode] = createSignal<'play' | 'manage'>('play');
+  const [viewMode, setViewMode] = createSignal<'play' | 'manage' | 'doc'>('play');
 
   const [mode, setMode] = createSignal<ModeType>(MODE.START_SCREEN);
   const [playList, setPlayList] = createSignal<string[]>([]);
@@ -443,6 +444,7 @@ export default function PlayScreen() {
             mode={mode()}
             timeLeft={timeLeft()}
             onOpenCategoryManager={() => setViewMode('manage')}
+            onOpenDoc={() => setViewMode('doc')}
             onBackToPlay={() => setViewMode('play')}
             onReset={handleReset}
             currentIndex={currentIndex()}
@@ -538,6 +540,7 @@ export default function PlayScreen() {
             mode={MODE.START_SCREEN}
             timeLeft={0}
             onOpenCategoryManager={() => { }}
+            onOpenDoc={() => setViewMode('doc')}
             onReset={() => setViewMode('play')}
             onBackToPlay={() => setViewMode('play')}
             viewMode={viewMode()}
@@ -589,6 +592,29 @@ export default function PlayScreen() {
           </div>
         </div>
       </Show>
+
+      {/* ✅ ドキュメントページ */}
+      <Show when={viewMode() === 'doc'}>
+        <div class="h-screen flex flex-col bg-white dark:bg-black text-black dark:text-white">
+          {/* ヘッダー */}
+          <Header
+            mode={MODE.START_SCREEN}
+            timeLeft={0}
+            onOpenCategoryManager={() => setViewMode('manage')}
+            onOpenDoc={() => setViewMode('doc')}
+            onReset={() => setViewMode('play')}
+            onBackToPlay={() => setViewMode('play')}
+            viewMode={viewMode()}
+          />
+
+          {/* コンテンツ（スクロール可能） */}
+          <main class="flex-1 overflow-y-auto">
+            <DocumentPage />
+          </main>
+        </div>
+      </Show>
+
+
       {/* ✅ モーダル表示 */}
       <Show when={showSaveModal()}>
         <SaveModal categoryData={get()} onClose={() => setShowSaveModal(false)} />

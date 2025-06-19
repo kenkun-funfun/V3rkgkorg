@@ -18,7 +18,8 @@ type Props = {
   currentIndex?: number;
   totalCount?: number;
   onBackToPlay: () => void;
-  viewMode: 'play' | 'manage';
+  viewMode: 'play' | 'manage' | 'doc';
+  onOpenDoc: () => void;
 };
 
 const Header: Component<Props> = (props) => {
@@ -77,6 +78,15 @@ const Header: Component<Props> = (props) => {
             >
               {t('header_category_manage')}
             </button>
+            <button
+              class={`flex items-center gap-1 px-2 py-1 rounded border text-sm font-semibold
+  ${props.viewMode === 'doc'
+                  ? 'bg-white text-black border-white'
+                  : 'border-white hover:bg-white hover:text-black text-white'}`}
+              onClick={props.onOpenDoc}
+            >
+              {t('header_document')}
+            </button>
             <a
               href="https://plus.rkgk.org/"
               target="_blank"
@@ -94,7 +104,7 @@ const Header: Component<Props> = (props) => {
               X / @rkgk_org
             </a>
             <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSd0tRbu447oHiTCCEXh0BSwB2fzDHi2nXqP43y4WSUbxumZqg/viewform?usp=sharing&ouid=101563540129971203529" // ← フォームURLをここに
+              href="https://marshmallow-qa.com/rkgk_org" // ← フォームURLをここに
               target="_blank"
               rel="noopener noreferrer"
               class="text-sm text-blue-400 hover:underline hidden sm:inline"
@@ -111,7 +121,7 @@ const Header: Component<Props> = (props) => {
         <div class="flex items-center gap-3 text-sm">
           <div class="flex items-center gap-1">
             <Timer size={14} />
-            <span>{t('header_remaining')} {formatTime(props.timeLeft)}</span>
+            <span>{formatTime(props.timeLeft)}</span>
           </div>
           <Show when={props.mode === MODE.RUNNING && props.totalCount}>
             <div>
@@ -148,6 +158,9 @@ const Header: Component<Props> = (props) => {
           <button class="w-full text-left" onClick={() => { props.onOpenCategoryManager(); setMenuOpen(false); }}>
             {t('header_category_manage')}
           </button>
+          <button class="w-full text-left" onClick={() => { props.onOpenDoc(); setMenuOpen(false); }}>
+            {t('header_document')}
+          </button>
           <a
             href="https://plus.rkgk.org/"
             target="_blank"
@@ -165,7 +178,7 @@ const Header: Component<Props> = (props) => {
             X / @rkgk_org
           </a>
           <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLSd0tRbu447oHiTCCEXh0BSwB2fzDHi2nXqP43y4WSUbxumZqg/viewform?usp=sharing&ouid=101563540129971203529" // ← フォームURLをここに
+            href="https://marshmallow-qa.com/rkgk_org" // ← フォームURLをここに
             target="_blank"
             rel="noopener noreferrer"
             class="w-full block text-left text-blue-400 hover:underline"
