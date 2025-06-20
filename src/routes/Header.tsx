@@ -3,7 +3,7 @@ import type { Component } from 'solid-js';
 import { createSignal, Show } from 'solid-js';
 import { MODE } from '@/lib/constants';
 import type { ModeType } from '@/lib/constants';
-import { Timer, X, Languages, Sun, Moon, Menu } from 'lucide-solid';
+import { Timer, X, Languages, Sun, Moon, Menu, Twitter } from 'lucide-solid';
 import { themeStore } from '@/stores/themeStore';
 import { lang, setLang, t } from '@/stores/i18nStore';
 
@@ -100,9 +100,18 @@ const Header: Component<Props> = (props) => {
               href="https://x.com/rkgk_org"
               target="_blank"
               rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 hidden sm:inline"
+              title="X / @rkgk_org"
+            >
+              <Twitter size={18} />
+            </a>
+            <a
+              href="https://x.com/search?q=%23rkgkfig&src=hashtag_click&f=live"
+              target="_blank"
+              rel="noopener noreferrer"
               class="text-sm text-blue-400 hover:underline hidden sm:inline"
             >
-              X / @rkgk_org
+              #rkgkfig
             </a>
             <a
               href="https://marshmallow-qa.com/rkgk_org" // ← フォームURLをここに
@@ -132,24 +141,24 @@ const Header: Component<Props> = (props) => {
 
 
       {/* 右：テーマ・言語切替 */}
-        <div class="flex items-center gap-2">
-          <button
-            onClick={toggleTheme}
-            class="flex items-center justify-center px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
-            title="テーマ切り替え"
-          >
-            <Show when={theme() === 'dark'} fallback={<Moon size={16} />}>
-              <Sun size={16} />
-            </Show>
-          </button>
-          <button
-            onClick={() => props.onShowLanguageModal()}
-            class="px-2 py-1 rounded border text-sm flex items-center gap-1 bg-white text-black dark:bg-zinc-800 dark:text-white border-white dark:border-white"
-            title="Language"
-          >
-            <Languages size={16} />
-          </button>
-        </div>
+      <div class="flex items-center gap-2">
+        <button
+          onClick={toggleTheme}
+          class="flex items-center justify-center px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
+          title="テーマ切り替え"
+        >
+          <Show when={theme() === 'dark'} fallback={<Moon size={16} />}>
+            <Sun size={16} />
+          </Show>
+        </button>
+        <button
+          onClick={() => props.onShowLanguageModal()}
+          class="px-2 py-1 rounded border text-sm flex items-center gap-1 bg-white text-black dark:bg-zinc-800 dark:text-white border-white dark:border-white"
+          title="Language"
+        >
+          <Languages size={16} />
+        </button>
+      </div>
 
       {/* モバイルメニュー（ハンバーガー展開） */}
       <Show when={menuOpen()}>
@@ -169,20 +178,29 @@ const Header: Component<Props> = (props) => {
             {t('header_old_version')}
           </a>
           <a
-            href="https://x.com/rkgk_org"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="w-full block text-left text-blue-400 hover:underline"
-          >
-            X / @rkgk_org
-          </a>
-          <a
             href="https://marshmallow-qa.com/rkgk_org" // ← フォームURLをここに
             target="_blank"
             rel="noopener noreferrer"
             class="w-full block text-left text-blue-400 hover:underline"
           >
             {t('feedback_label')}
+          </a>
+          <a
+            href="https://x.com/search?q=%23rkgkfig&src=hashtag_click&f=live"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full block text-left text-blue-400 hover:underline"
+          >
+            #rkgkfig
+          </a>
+          <a
+            href="https://x.com/rkgk_org"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-400 hover:text-blue-300 inline" // ← 修正！
+            title="X / @rkgk_org"
+          >
+            <Twitter size={18} />
           </a>
         </div>
       </Show>
