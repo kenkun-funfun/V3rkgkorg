@@ -609,7 +609,7 @@ export default function PlayScreen() {
             onReset={() => setViewMode('play')}
             onBackToPlay={() => setViewMode('play')}
             viewMode={viewMode()}
-            onShowLanguageModal={() => setShowLanguageModal(true)} 
+            onShowLanguageModal={() => setShowLanguageModal(true)}
           />
 
           {/* コンテンツ（スクロール可能） */}
