@@ -10,6 +10,7 @@ type Props = {
   setMode: Setter<ModeType>;
   onStart: (selected: string[]) => void;
   onToggleCategoryPanel: () => void;
+  onOpenLoadModal: () => void;
 };
 
 export default function WaitPanel(props: Props) {
@@ -77,8 +78,7 @@ export default function WaitPanel(props: Props) {
 
   return (
     <div class="flex flex-col items-center justify-center px-4 py-6 w-full h-full overflow-hidden">
-      <div class="w-full max-w-md space-y-6 bg-zinc-800 dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-700 relative">
-
+<div class="w-full max-w-md h-full overflow-y-auto space-y-6 bg-zinc-800 dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-700 relative">
         <div class="space-y-4 w-full">
           {/* Timer (min/sec) */}
           <div>
@@ -234,26 +234,33 @@ export default function WaitPanel(props: Props) {
           </div>
 
 
-          {/* カテゴリ選択ボタン＋再生ボタン：横並び */}
+          {/* カテゴリ選択ボタン＋再生ボタン：スマホでは縦、PCでは横並び */}
           <div class="pt-4">
-            <div class="flex gap-4">
-              {/* カテゴリ選択ボタン */}
+            <div class="flex flex-col sm:flex-row gap-y-2 sm:gap-4">
               <button
-                class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold flex-1 hover:bg-green-700 transition"
+                class="bg-zinc-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-zinc-700 transition"
+                onClick={props.onOpenLoadModal}
+              >
+                {t('load_title')}
+              </button>
+
+              <button
+                class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-green-700 transition"
                 onClick={props.onToggleCategoryPanel}
               >
                 {t('wait_select_category_button')}
               </button>
 
-              {/* 再生ボタン */}
               <button
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold flex-1 hover:bg-blue-700 transition"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-blue-700 transition"
                 onClick={handleStart}
               >
                 ▶ {t('play')}
               </button>
             </div>
           </div>
+
+
         </div>
       </div>
     </div>

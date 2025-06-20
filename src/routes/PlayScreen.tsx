@@ -487,6 +487,7 @@ export default function PlayScreen() {
                 setMode={setMode}
                 onStart={startPlayback}
                 onToggleCategoryPanel={handleToggleCategoryPanel}
+                onOpenLoadModal={() => setShowLoadModal(true)}
               />
             </Show>
 

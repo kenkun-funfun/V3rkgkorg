@@ -6,11 +6,16 @@ import { lang, setLang, t } from '@/stores/i18nStore';
 const LANGUAGES = [
   { code: 'ja', label: '日本語' },
   { code: 'en', label: 'English' },
+  { code: 'es', label: 'Español' },
+  { code: 'pt-BR', label: 'Português (Brasil)' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'ru', label: 'Русский' },
   { code: 'ko', label: '한국어' },
-  { code: 'zh-CN', label: '简体中文' },
-  { code: 'zh-TW', label: '繁體中文' },
   { code: 'th', label: 'ภาษาไทย' },
   { code: 'id', label: 'Bahasa Indonesia' },
+  { code: 'zh-CN', label: '简体中文' },
+  { code: 'zh-TW', label: '繁體中文' },
 ];
 
 type Props = {
