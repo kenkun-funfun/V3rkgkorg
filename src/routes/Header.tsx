@@ -20,6 +20,7 @@ type Props = {
   onBackToPlay: () => void;
   viewMode: 'play' | 'manage' | 'doc';
   onOpenDoc: () => void;
+  onShowLanguageModal: () => void;
 };
 
 const Header: Component<Props> = (props) => {
@@ -118,39 +119,37 @@ const Header: Component<Props> = (props) => {
 
       {/* 中央：タイマー表示 */}
       <Show when={props.mode !== MODE.START_SCREEN}>
-        <div class="flex items-center gap-3 text-sm">
+        <div class="absolute left-1/2 transform -translate-x-1/2 text-sm flex items-center gap-3">
           <div class="flex items-center gap-1">
             <Timer size={14} />
             <span>{formatTime(props.timeLeft)}</span>
           </div>
-          <Show when={props.mode === MODE.RUNNING && props.totalCount}>
-            <div>
-              {Math.min(props.currentIndex! + 1, props.totalCount - 1)} / {props.totalCount - 1}
-            </div>
-          </Show>
+          <div>
+            {Math.min(props.currentIndex! + 1, props.totalCount - 1)} / {props.totalCount - 1}
+          </div>
         </div>
       </Show>
 
+
       {/* 右：テーマ・言語切替 */}
-      <div class="flex items-center gap-2">
-        <button
-          onClick={toggleTheme}
-          class="flex items-center justify-center px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
-          title="テーマ切り替え"
-        >
-          <Show when={theme() === 'dark'} fallback={<Moon size={16} />}>
-            <Sun size={16} />
-          </Show>
-        </button>
-        <button
-          class="flex items-center gap-1 px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
-          onClick={() => setLang(lang() === 'ja' ? 'en' : 'ja')}
-          title={t('language')}
-        >
-          <Languages size={14} />
-          {lang() === 'ja' ? 'ja' : 'en'}
-        </button>
-      </div>
+        <div class="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            class="flex items-center justify-center px-2 py-1 rounded border border-white text-sm text-white hover:bg-white hover:text-black"
+            title="テーマ切り替え"
+          >
+            <Show when={theme() === 'dark'} fallback={<Moon size={16} />}>
+              <Sun size={16} />
+            </Show>
+          </button>
+          <button
+            onClick={() => props.onShowLanguageModal()}
+            class="px-2 py-1 rounded border text-sm flex items-center gap-1 bg-white text-black dark:bg-zinc-800 dark:text-white border-white dark:border-white"
+            title="Language"
+          >
+            <Languages size={16} />
+          </button>
+        </div>
 
       {/* モバイルメニュー（ハンバーガー展開） */}
       <Show when={menuOpen()}>

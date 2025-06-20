@@ -16,6 +16,7 @@ import SaveModal from '@/components/SaveModal';
 import LoadModal from '@/components/LoadModal';
 import CategoryAddModal from '@/components/CategoryAddModal';
 import DuplicateCheckModal from '@/components/DuplicateCheckModal';
+import LanguageModal from '@/components/LanguageModal';
 import {
   get,
   loadFromJson,
@@ -51,6 +52,7 @@ export default function PlayScreen() {
   const [showLoadModal, setShowLoadModal] = createSignal(false);
   const [showAddModal, setShowAddModal] = createSignal(false);
   const [showDuplicateModal, setShowDuplicateModal] = createSignal(false);
+  const [showLanguageModal, setShowLanguageModal] = createSignal(false);
   const [isCountingDown, setIsCountingDown] = createSignal(false);
   const [countdownDisplay, setCountdownDisplay] = createSignal<number | null>(null);
 
@@ -450,6 +452,7 @@ export default function PlayScreen() {
             currentIndex={currentIndex()}
             totalCount={totalCount()}
             viewMode={viewMode()}
+            onShowLanguageModal={() => setShowLanguageModal(true)}
           />
           <main
             class="flex-1 flex justify-center items-center overflow-hidden px-4 py-2 relative"
@@ -544,6 +547,7 @@ export default function PlayScreen() {
             onReset={() => setViewMode('play')}
             onBackToPlay={() => setViewMode('play')}
             viewMode={viewMode()}
+            onShowLanguageModal={() => setShowLanguageModal(true)}
           />
 
           <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
@@ -605,6 +609,7 @@ export default function PlayScreen() {
             onReset={() => setViewMode('play')}
             onBackToPlay={() => setViewMode('play')}
             viewMode={viewMode()}
+            onShowLanguageModal={() => setShowLanguageModal(true)} 
           />
 
           {/* コンテンツ（スクロール可能） */}
@@ -630,6 +635,9 @@ export default function PlayScreen() {
 
       <Show when={showDuplicateModal()}>
         <DuplicateCheckModal onClose={() => setShowDuplicateModal(false)} />
+      </Show>
+      <Show when={showLanguageModal()}>
+        <LanguageModal onClose={() => setShowLanguageModal(false)} />
       </Show>
     </section>
   );
