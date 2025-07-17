@@ -2,7 +2,15 @@
 import { createSignal, onMount, For, Show } from 'solid-js';
 import type { Setter } from 'solid-js';
 import type { ModeType } from '@/lib/constants';
-import { panelSelectedCategories } from '@/stores/categoryStore';
+import { Pin, PinOff } from 'lucide-solid';
+import {
+  get,
+  panelSelectedCategories,
+  setPanelSelectedCategories,
+  pinnedCategories,
+  setPinnedCategories
+} from '@/stores/categoryStore';
+
 import { t } from '@/stores/i18nStore';
 import { chimeEnabled, setChimeEnabled } from '@/stores/playSettings';
 
@@ -22,9 +30,39 @@ export default function WaitPanel(props: Props) {
   const [maxPlays, setMaxPlays] = createSignal(10);
   const [countdownEnabled, setCountdownEnabled] = createSignal(true); // ✅ 初期値オン
   const [countdownSeconds, setCountdownSeconds] = createSignal(3);    // ✅ 初期値3秒
+  const [search, setSearch] = createSignal('');
   const updateDuration = (m: number, s: number) => {
     const str = `${m}:${s.toString().padStart(2, '0')}`;
     localStorage.setItem('duration', str);
+  };
+
+  const filteredNames = () => {
+    const all = Object.keys(get());
+    const query = search().toLowerCase();
+    return all.filter((name) => name.toLowerCase().includes(query));
+  };
+
+  const pinned = () =>
+    filteredNames().filter((name) => pinnedCategories().includes(name));
+
+  const unpinned = () =>
+    filteredNames()
+      .filter((name) => !pinnedCategories().includes(name))
+      .sort();
+
+  const togglePin = (name: string) => {
+    const next = pinnedCategories().includes(name)
+      ? pinnedCategories().filter((n) => n !== name)
+      : [...pinnedCategories(), name];
+    setPinnedCategories(next);
+  };
+
+  const toggleSelect = (name: string) => {
+    const current = panelSelectedCategories();
+    const updated = current.includes(name)
+      ? current.filter((n) => n !== name)
+      : [...current, name];
+    setPanelSelectedCategories(updated);
   };
 
   onMount(() => {
@@ -78,11 +116,11 @@ export default function WaitPanel(props: Props) {
 
   return (
     <div class="flex flex-col items-center justify-center px-4 py-6 w-full h-full overflow-hidden">
-<div class="w-full max-w-md h-full overflow-y-auto space-y-6 bg-zinc-800 dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-700 relative">
+      <div class="w-full max-w-md h-full overflow-y-auto space-y-6 bg-white dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-300 dark:border-zinc-700 relative">
         <div class="space-y-4 w-full">
           {/* Timer (min/sec) */}
           <div>
-            <label class="block text-sm font-semibold text-white mb-1">
+            <label class="block text-sm font-semibold text-black dark:text-white mb-1">
               {t('wait_timer_label')}
             </label>
             <div class="flex gap-2">
@@ -126,7 +164,7 @@ export default function WaitPanel(props: Props) {
           <div class="grid grid-cols-2 sm:grid-cols-1 gap-4">
             {/* Number of images */}
             <div>
-              <label class="block text-sm font-semibold text-white mb-1">
+              <label class="block text-sm font-semibold text-black dark:text-white mb-1">
                 {t('wait_max_plays')}
               </label>
               <select
@@ -146,7 +184,7 @@ export default function WaitPanel(props: Props) {
 
             {/* Countdown toggle + seconds */}
             <div>
-              <label class="inline-flex items-center gap-2 mb-2 text-sm text-white">
+              <label class="inline-flex items-center gap-2 mb-2 text-sm text-black dark:text-white">
                 <input
                   type="checkbox"
                   checked={countdownEnabled()}
@@ -175,8 +213,7 @@ export default function WaitPanel(props: Props) {
           </div>
 
           {/* チェックボックス設定 */}
-          <div class="grid grid-cols-2 gap-2 pt-2 text-sm text-white">
-
+          <div class="grid grid-cols-2 gap-2 pt-2 text-sm text-black dark:text-white">
             {/* シャッフル */}
             <label class="inline-flex items-center gap-2">
               <input
@@ -262,8 +299,108 @@ export default function WaitPanel(props: Props) {
 
 
         </div>
+
+        {/* PC限定：カテゴリ一覧を直接表示 */}
+        <div class="hidden sm:block pt-6">
+
+          <input
+            type="text"
+            class="w-full px-3 py-2 rounded border bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white mb-4"
+            placeholder={t('category_panel_search_placeholder')}
+            value={search()}
+            onInput={(e) => setSearch(e.currentTarget.value)}
+          />
+
+          <div class="max-h-64 overflow-y-auto space-y-6">
+            {/* ピン付きカテゴリ */}
+            <Show when={pinned().length > 0}>
+              <div>
+                <div class="text-black dark:text-white font-semibold mb-2">📌 {t('category_panel_pin')}</div>
+                <div class="space-y-1">
+                  <For each={pinned()}>
+                    {(name) => (
+                      <div
+                        class={`flex items-center justify-between px-2 py-2 rounded transition-colors ${panelSelectedCategories().includes(name)
+                          ? 'bg-blue-50 dark:bg-blue-900'
+                          : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                          }`}
+                        onClick={() => toggleSelect(name)}
+                      >
+                        <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={panelSelectedCategories().includes(name)}
+                            readOnly
+                          />
+                          <span class="truncate">{name}（{get()[name]?.length || 0}）</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePin(name);
+                          }}
+                          class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'
+                            }`}
+                          title={t('category_panel_pin')}
+                        >
+                          {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
+                        </button>
+                      </div>
+                    )}
+                  </For>
+
+                </div>
+              </div>
+            </Show>
+
+            {/* ピンなしカテゴリ */}
+            <div>
+              <div class="text-black dark:text-white font-semibold mb-2">📂 {t('category_panel_title')}</div>
+              <div class="space-y-1">
+                <For each={unpinned()}>
+                  {(name) => (
+                    <div
+                      class={`flex items-center justify-between px-2 py-2 rounded transition-colors ${panelSelectedCategories().includes(name)
+                        ? 'bg-blue-50 dark:bg-blue-900'
+                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                        }`}
+                      onClick={() => toggleSelect(name)}
+                    >
+                      <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={panelSelectedCategories().includes(name)}
+                          readOnly
+                        />
+                        <span class="truncate">{name}（{get()[name]?.length || 0}）</span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePin(name);
+                        }}
+                        class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'
+                          }`}
+                        title={t('category_panel_pin')}
+                      >
+                        {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
+                      </button>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
       </div>
     </div>
+
+
+
+
+
 
   );
 }
