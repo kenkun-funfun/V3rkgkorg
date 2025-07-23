@@ -83,139 +83,136 @@ export default function ImageManager() {
     input.click();
   };
 
-  return (
-    <div class="space-y-4">
-      <div
-        class={`rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-all
-          ${isDragOver()
-            ? 'border-blue-500 bg-blue-100 dark:bg-zinc-800'
-            : 'border-gray-400 bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-zinc-900'}
-        `}
-        onClick={handleBrowse}
-        onDragEnter={(e) => {
-          e.preventDefault();
-          setIsDragOver(true);
-        }}
-        onDragOver={(e) => e.preventDefault()}
-        onDragLeave={(e) => {
-          e.preventDefault();
-          setIsDragOver(false);
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          setIsDragOver(false);
-          // handleDrop(e);
-        }}
-      >
-        <div class="flex flex-col items-center space-y-2 text-sm text-gray-600 dark:text-gray-300 text-center">
-          <UploadCloud size={32} />
-          <span>
-            {t('image_upload_hint')}
-          </span>
+return (
+  <div class="space-y-4 w-full">
+    <div
+      class={`rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-all
+        ${isDragOver()
+          ? 'border-blue-500 bg-blue-100 dark:bg-zinc-800'
+          : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-zinc-800'}
+      `}
+      onClick={handleBrowse}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        setIsDragOver(true);
+      }}
+      onDragOver={(e) => e.preventDefault()}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        setIsDragOver(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        // handleDrop(e);
+      }}
+    >
+      <div class="flex flex-col items-center space-y-2 text-sm text-gray-600 dark:text-gray-300 text-center">
+        <UploadCloud size={32} />
+        <span>{t('image_upload_hint')}</span>
 
-          <div class="flex flex-col items-start gap-1 text-xs text-gray-500 dark:text-gray-400">
-            <div class="flex items-start gap-2">
-              <CircleAlert size={14} class="mt-0.5 shrink-0" />
-              <span>{t('image_upload_drag_info1')}</span>
-            </div>
-            <div class="flex items-start gap-2">
-              <CircleAlert size={14} class="mt-0.5 shrink-0" />
-              <span>{t('image_upload_drag_info2')}</span>
-            </div>
+        <div class="flex flex-col items-start gap-1 text-xs text-gray-500 dark:text-gray-400">
+          <div class="flex items-start gap-2">
+            <CircleAlert size={14} class="mt-0.5 shrink-0" />
+            <span>{t('image_upload_drag_info1')}</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <CircleAlert size={14} class="mt-0.5 shrink-0" />
+            <span>{t('image_upload_drag_info2')}</span>
           </div>
         </div>
-
-
       </div>
-
-      <div class="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-        <div class="flex items-center gap-2">
-          <span>{t('image_display_count')}</span>
-          <select
-            value={perPage()}
-            onChange={(e) => { setPerPage(Number(e.currentTarget.value)); setCurrentPage(1); }}
-            class="border rounded px-2 py-1 bg-white dark:bg-zinc-800"
-          >
-            <option value="12">12</option>
-            <option value="24">24</option>
-            <option value="48">48</option>
-          </select>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span>{t('image_sort_order')}</span>
-          <button
-            onClick={() => {
-              setSortOrder(sortOrder() === 'asc' ? 'desc' : 'asc');
-              setCurrentPage(1);
-            }}
-            class="px-3 py-1 rounded border bg-white dark:bg-zinc-800"
-          >
-            {sortOrder() === 'asc' ? t('sort_asc') : t('sort_desc')}
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        <For each={paginatedImages()}>
-          {(img, index) => {
-            return (
-              <div class="relative group border rounded overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                <img
-                  src={img.base64 || img.url}
-                  alt="preview"
-                  class="w-full h-auto object-contain"
-                  loading="lazy"
-                />
-                <button
-                  class="absolute top-1 right-1 bg-red-600 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition"
-                  onClick={() => {
-                    const name = currentCategory();
-                    if (!name) return;
-
-                    const original = [...images()];
-                    const sorted = [...original];
-                    if (sortOrder() === 'desc') sorted.reverse();
-
-                    const start = (currentPage() - 1) * perPage();
-                    const pageItem = sorted[start + index()]; // ✅ 表示中の画像そのもの
-
-                    const realIndex = original.indexOf(pageItem); // ✅ 元の順での index を特定
-
-                    if (realIndex >= 0) removeImage(name, realIndex);
-                  }}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            );
-          }}
-        </For>
-
-      </div>
-
-      <Show when={totalPages() > 1}>
-        <div class="flex justify-center items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-          <button
-            disabled={currentPage() === 1}
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            class="px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-700 disabled:opacity-50"
-          >
-            {t('prev_page')}
-
-          </button>
-          <span>
-            {currentPage()} / {totalPages()}
-          </span>
-          <button
-            disabled={currentPage() === totalPages()}
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages(), prev + 1))}
-            class="px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-700 disabled:opacity-50"
-          >
-            {t('next_page')}
-          </button>
-        </div>
-      </Show>
     </div>
-  );
+
+    <div class="flex flex-wrap justify-center items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+      <div class="flex items-center gap-2">
+        <span>{t('image_display_count')}</span>
+        <select
+          value={perPage()}
+          onChange={(e) => {
+            setPerPage(Number(e.currentTarget.value));
+            setCurrentPage(1);
+          }}
+          class="border border-zinc-300 dark:border-zinc-600 rounded px-2 py-1 bg-white dark:bg-zinc-800"
+        >
+          <option value="12">12</option>
+          <option value="24">24</option>
+          <option value="48">48</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span>{t('image_sort_order')}</span>
+        <button
+          onClick={() => {
+            setSortOrder(sortOrder() === 'asc' ? 'desc' : 'asc');
+            setCurrentPage(1);
+          }}
+          class="px-3 py-1 rounded border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
+        >
+          {sortOrder() === 'asc' ? t('sort_asc') : t('sort_desc')}
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <For each={paginatedImages()}>
+        {(img, index) => {
+          return (
+            <div class="relative group border rounded overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+              <img
+                src={img.base64 || img.url}
+                alt="preview"
+                class="w-full h-auto object-contain"
+                loading="lazy"
+              />
+              <button
+                class="absolute top-1 right-1 bg-red-600 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition"
+                onClick={() => {
+                  const name = currentCategory();
+                  if (!name) return;
+
+                  const original = [...images()];
+                  const sorted = [...original];
+                  if (sortOrder() === 'desc') sorted.reverse();
+
+                  const start = (currentPage() - 1) * perPage();
+                  const pageItem = sorted[start + index()];
+
+                  const realIndex = original.indexOf(pageItem);
+                  if (realIndex >= 0) removeImage(name, realIndex);
+                }}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          );
+        }}
+      </For>
+    </div>
+
+    <Show when={totalPages() > 1}>
+      <div class="flex justify-center items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <button
+          disabled={currentPage() === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+          class="px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-700 disabled:opacity-50"
+        >
+          {t('prev_page')}
+        </button>
+        <span>
+          {currentPage()} / {totalPages()}
+        </span>
+        <button
+          disabled={currentPage() === totalPages()}
+          onClick={() => setCurrentPage((prev) => Math.min(totalPages(), prev + 1))}
+          class="px-2 py-1 rounded bg-zinc-200 dark:bg-zinc-700 disabled:opacity-50"
+        >
+          {t('next_page')}
+        </button>
+      </div>
+    </Show>
+  </div>
+);
+
 }

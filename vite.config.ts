@@ -14,9 +14,9 @@ export default defineConfig({
     solidPlugin(),
     ...(isBuild ? [viteObfuscateFile({ compact: true })] : []),
 
-    // ✅ Google Analytics タグ自動挿入
+    // ✅ Google Analytics ＋ AdSense タグ自動挿入
     {
-      name: 'inject-google-analytics',
+      name: 'inject-meta-tags',
       transformIndexHtml(html) {
         if (!isBuild) return html;
 
@@ -30,7 +30,12 @@ export default defineConfig({
     gtag('config', 'G-C979VZBPDX');
   </script>`;
 
-        return html.replace('</head>', `${gaTag}\n</head>`);
+        const adsenseTag = `
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5995460087390046"
+    crossorigin="anonymous"></script>`;
+
+        return html.replace('</head>', `${gaTag}\n${adsenseTag}\n</head>`);
       }
     }
   ],

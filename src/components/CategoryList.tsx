@@ -47,7 +47,7 @@ export default function CategoryList(props: Props) {
   };
 
   return (
-    <div class="space-y-2">
+    <div class="space-y-2 w-full bg-zinc-100 dark:bg-zinc-900 rounded p-2">
       <div class="flex justify-end gap-2 mb-1">
         <button
           onClick={() => props.onLoad()}
@@ -84,7 +84,7 @@ export default function CategoryList(props: Props) {
         <input
           type="text"
           placeholder={t('category_list_search_placeholder')}
-          class="flex-1 p-2 rounded border border-zinc-300 dark:border-zinc-600 dark:bg-zinc-700 text-black dark:text-white"
+          class="flex-1 p-2 rounded border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-black dark:text-white"
           value={filter()}
           onInput={(e) => setFilter(e.currentTarget.value)}
         />
@@ -94,8 +94,8 @@ export default function CategoryList(props: Props) {
         {(name) => (
           <div
             class={`flex items-center justify-between px-3 py-2 rounded cursor-pointer transition-all duration-150 border-2 ${props.selected === name
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900'
-              : 'border-transparent hover:border-zinc-400'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900'
+                : 'border-transparent bg-white dark:bg-zinc-800 hover:border-zinc-400'
               }`}
             onClick={() => props.onSelect(name)}
           >
@@ -106,11 +106,13 @@ export default function CategoryList(props: Props) {
                 onInput={(e) => setInputValue(e.currentTarget.value)}
                 onBlur={() => handleRename(name)}
                 onKeyDown={(e) => e.key === 'Enter' && handleRename(name)}
-                class="flex-1 bg-transparent border-b border-gray-400 outline-none text-sm"
+                class="flex-1 bg-white dark:bg-zinc-700 text-black dark:text-white border-b border-gray-400 dark:border-zinc-600 outline-none text-sm"
                 autofocus
               />
             ) : (
-              <span class="flex-1 truncate">{name}（{get()[name]?.length || 0}）</span>
+              <span class="flex-1 truncate text-black dark:text-white">
+                {name}（{get()[name]?.length || 0}）
+              </span>
             )}
 
             <div class="flex gap-1">
@@ -144,7 +146,8 @@ export default function CategoryList(props: Props) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm(t('category_list_delete_confirm', { name }))) removeCategory(name);
+                  if (confirm(t('category_list_delete_confirm', { name })))
+                    removeCategory(name);
                 }}
                 class="p-1 hover:text-red-500"
               >

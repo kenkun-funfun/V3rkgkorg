@@ -438,7 +438,7 @@ export default function PlayScreen() {
 
   return (
     <section
-      class="w-screen overflow-hidden"
+      class="w-screen overflow-y-auto bg-white dark:bg-black"
       style={{ height: '100dvh' }}
     >      <Show when={viewMode() === 'play'}>
         <div class="h-full w-full flex flex-col overflow-hidden bg-white text-black dark:bg-black dark:text-white relative">
@@ -551,9 +551,9 @@ export default function PlayScreen() {
             onShowLanguageModal={() => setShowLanguageModal(true)}
           />
 
-          <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
+          <div class="flex flex-col md:flex-row flex-1 overflow-y-auto">
 
-            <div class="w-full md:w-1/3 h-[45vh] md:h-auto border-r border-zinc-700 overflow-y-auto p-4">
+            <div class="w-full md:w-1/3 border-r border-zinc-700 p-4">
               <CategoryList
                 selected={currentCategory()}
                 onSelect={(name) => setCurrentCategory(name)}
@@ -563,8 +563,7 @@ export default function PlayScreen() {
                 onShowDuplicateModal={() => setShowDuplicateModal(true)}
               />
             </div>
-            <div class="flex-1 h-[55vh] md:h-auto overflow-y-auto p-4">
-
+            <div class="flex-1 p-4">
               <Show
                 when={currentCategory()}
                 fallback={

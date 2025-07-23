@@ -115,10 +115,11 @@ export default function WaitPanel(props: Props) {
   };
 
   return (
-    <div class="flex flex-col items-center justify-center px-4 py-6 w-full h-full overflow-hidden">
-      <div class="w-full max-w-md h-full overflow-y-auto space-y-6 bg-white dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-300 dark:border-zinc-700 relative">
-        <div class="space-y-4 w-full">
-          {/* Timer (min/sec) */}
+    <div class="flex flex-col sm:flex-row gap-6 w-full h-full overflow-y-auto px-4 py-6">
+      {/* 左：設定パネル */}
+      <div class="w-full sm:w-1/2 h-full">
+        <div class="space-y-6 bg-white dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-300 dark:border-zinc-700">
+          {/* タイマー設定 */}
           <div>
             <label class="block text-sm font-semibold text-black dark:text-white mb-1">
               {t('wait_timer_label')}
@@ -150,7 +151,7 @@ export default function WaitPanel(props: Props) {
                   {(v) => (
                     <option
                       value={v}
-                      disabled={minute() === 0 && v === 0} // ✅ 0:00 を禁止
+                      disabled={minute() === 0 && v === 0}
                     >
                       {v} {t('seconds')}
                     </option>
@@ -160,9 +161,8 @@ export default function WaitPanel(props: Props) {
             </div>
           </div>
 
-          {/* Number of images + Countdown Settings (responsive grid) */}
+          {/* 再生枚数＋カウントダウン */}
           <div class="grid grid-cols-2 sm:grid-cols-1 gap-4">
-            {/* Number of images */}
             <div>
               <label class="block text-sm font-semibold text-black dark:text-white mb-1">
                 {t('wait_max_plays')}
@@ -182,7 +182,6 @@ export default function WaitPanel(props: Props) {
               </select>
             </div>
 
-            {/* Countdown toggle + seconds */}
             <div>
               <label class="inline-flex items-center gap-2 mb-2 text-sm text-black dark:text-white">
                 <input
@@ -214,7 +213,6 @@ export default function WaitPanel(props: Props) {
 
           {/* チェックボックス設定 */}
           <div class="grid grid-cols-2 gap-2 pt-2 text-sm text-black dark:text-white">
-            {/* シャッフル */}
             <label class="inline-flex items-center gap-2">
               <input
                 type="checkbox"
@@ -227,7 +225,6 @@ export default function WaitPanel(props: Props) {
               {t('wait_enable_shuffle')}
             </label>
 
-            {/* キーボード操作 */}
             <label class="inline-flex items-center gap-2">
               <input
                 type="checkbox"
@@ -240,7 +237,6 @@ export default function WaitPanel(props: Props) {
               {t('wait_enable_keyboard')}
             </label>
 
-            {/* タップ操作 */}
             <label class="inline-flex items-center gap-2">
               <input
                 type="checkbox"
@@ -253,8 +249,6 @@ export default function WaitPanel(props: Props) {
               {t('wait_enable_tap')}
             </label>
 
-
-            {/* チャイム音 */}
             <label class="inline-flex items-center gap-2">
               <input
                 type="checkbox"
@@ -267,27 +261,23 @@ export default function WaitPanel(props: Props) {
               />
               {t('wait_chime_label')}
             </label>
-
           </div>
 
-
-          {/* カテゴリ選択ボタン＋再生ボタン：スマホでは縦、PCでは横並び */}
+          {/* ボタン類 */}
           <div class="pt-4">
-            <div class="flex flex-col sm:flex-row gap-y-2 sm:gap-4">
+            <div class="flex flex-col gap-y-2">
               <button
                 class="bg-zinc-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-zinc-700 transition"
                 onClick={props.onOpenLoadModal}
               >
                 {t('load_title')}
               </button>
-
               <button
                 class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-green-700 transition"
                 onClick={props.onToggleCategoryPanel}
               >
                 {t('wait_select_category_button')}
               </button>
-
               <button
                 class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-blue-700 transition"
                 onClick={handleStart}
@@ -296,13 +286,12 @@ export default function WaitPanel(props: Props) {
               </button>
             </div>
           </div>
-
-
         </div>
+      </div>
 
-        {/* PC限定：カテゴリ一覧を直接表示 */}
-        <div class="hidden sm:block pt-6">
-
+      {/* 右：カテゴリ一覧 */}
+      <div class="w-full sm:w-1/2 h-full">
+        <div class="px-2 sm:px-0">
           <input
             type="text"
             class="w-full px-3 py-2 rounded border bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white mb-4"
@@ -311,8 +300,8 @@ export default function WaitPanel(props: Props) {
             onInput={(e) => setSearch(e.currentTarget.value)}
           />
 
-          <div class="max-h-64 overflow-y-auto space-y-6">
-            {/* ピン付きカテゴリ */}
+          <div class="space-y-6">
+            {/* 📌 ピン付き */}
             <Show when={pinned().length > 0}>
               <div>
                 <div class="text-black dark:text-white font-semibold mb-2">📌 {t('category_panel_pin')}</div>
@@ -322,8 +311,7 @@ export default function WaitPanel(props: Props) {
                       <div
                         class={`flex items-center justify-between px-2 py-2 rounded transition-colors ${panelSelectedCategories().includes(name)
                           ? 'bg-blue-50 dark:bg-blue-900'
-                          : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                          }`}
+                          : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                         onClick={() => toggleSelect(name)}
                       >
                         <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
@@ -339,8 +327,7 @@ export default function WaitPanel(props: Props) {
                             e.stopPropagation();
                             togglePin(name);
                           }}
-                          class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'
-                            }`}
+                          class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
                           title={t('category_panel_pin')}
                         >
                           {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
@@ -348,12 +335,11 @@ export default function WaitPanel(props: Props) {
                       </div>
                     )}
                   </For>
-
                 </div>
               </div>
             </Show>
 
-            {/* ピンなしカテゴリ */}
+            {/* 📂 ピンなし */}
             <div>
               <div class="text-black dark:text-white font-semibold mb-2">📂 {t('category_panel_title')}</div>
               <div class="space-y-1">
@@ -362,8 +348,7 @@ export default function WaitPanel(props: Props) {
                     <div
                       class={`flex items-center justify-between px-2 py-2 rounded transition-colors ${panelSelectedCategories().includes(name)
                         ? 'bg-blue-50 dark:bg-blue-900'
-                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                        }`}
+                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                       onClick={() => toggleSelect(name)}
                     >
                       <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
@@ -379,8 +364,7 @@ export default function WaitPanel(props: Props) {
                           e.stopPropagation();
                           togglePin(name);
                         }}
-                        class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'
-                          }`}
+                        class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
                         title={t('category_panel_pin')}
                       >
                         {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
@@ -392,15 +376,7 @@ export default function WaitPanel(props: Props) {
             </div>
           </div>
         </div>
-
-
       </div>
     </div>
-
-
-
-
-
-
   );
 }
