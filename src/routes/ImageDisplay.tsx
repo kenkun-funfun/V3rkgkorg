@@ -2,6 +2,7 @@
 import { Show, Match, Switch } from 'solid-js';
 import { t } from '@/stores/i18nStore';
 import { Sticker } from 'lucide-solid';
+import AdRail from '@/components/AdRail';
 
 type Props = {
   imageUrl: string | null;
@@ -23,9 +24,15 @@ export default function ImageDisplay(props: Props) {
 
   return (
     <div
-      class="w-screen h-full flex justify-center items-center overflow-hidden bg-white text-black dark:bg-black dark:text-white cursor-default select-none"
+      class="relative w-screen h-full flex justify-center items-center overflow-hidden bg-white text-black dark:bg-black dark:text-white cursor-default select-none"
       onClick={props.onTap}
     >
+      <div class="hidden lg:block fixed left-0 top-20">
+        <AdRail />
+      </div>
+      <div class="hidden lg:block fixed right-0 top-20">
+        <AdRail />
+      </div>
       {/* ✅ プリロード用の透明img */}
       {props.preloadUrl && (
         <img src={props.preloadUrl} alt="" style={{ display: 'none' }} loading="eager" />
