@@ -13,6 +13,7 @@ import {
 
 import { t } from '@/stores/i18nStore';
 import { chimeEnabled, setChimeEnabled } from '@/stores/playSettings';
+import AdRail from '@/components/AdRail';
 
 type Props = {
   setMode: Setter<ModeType>;
@@ -115,198 +116,242 @@ export default function WaitPanel(props: Props) {
   };
 
   return (
-    <div class="flex flex-col sm:flex-row gap-6 w-full h-full overflow-y-auto px-4 py-6">
-      {/* 左：設定パネル */}
-      <div class="w-full sm:w-1/2 h-full">
-        <div class="space-y-6 bg-white dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-300 dark:border-zinc-700">
-          {/* タイマー設定 */}
-          <div>
-            <label class="block text-sm font-semibold text-black dark:text-white mb-1">
-              {t('wait_timer_label')}
-            </label>
-            <div class="flex gap-2">
-              <select
-                value={minute()}
-                onChange={(e) => {
-                  const m = parseInt(e.currentTarget.value);
-                  setMinute(m);
-                  updateDuration(m, second());
-                }}
-                class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
-              >
-                <For each={[...Array(61).keys()]}>
-                  {(v) => <option value={v}>{v} {t('minutes')}</option>}
-                </For>
-              </select>
-              <select
-                value={second()}
-                onChange={(e) => {
-                  const s = parseInt(e.currentTarget.value);
-                  setSecond(s);
-                  updateDuration(minute(), s);
-                }}
-                class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
-              >
-                <For each={[...Array(61).keys()]}>
-                  {(v) => (
-                    <option
-                      value={v}
-                      disabled={minute() === 0 && v === 0}
-                    >
-                      {v} {t('seconds')}
-                    </option>
-                  )}
-                </For>
-              </select>
-            </div>
-          </div>
+    <div class="relative flex justify-center">
+      {/* 左レール（デスクトップのみ表示） */}
+      <div class="hidden lg:block fixed left-0 top-20">
+        <AdRail />
+      </div>
 
-          {/* 再生枚数＋カウントダウン */}
-          <div class="grid grid-cols-2 sm:grid-cols-1 gap-4">
+      {/* 既存のコンテンツ */}
+      <div class="flex flex-col sm:flex-row gap-6 w-full h-full overflow-y-auto px-4 py-6">
+        {/* 左：設定パネル */}
+        <div class="w-full sm:w-1/2 h-full">
+          <div class="space-y-6 bg-white dark:bg-zinc-900 p-6 rounded-lg shadow border border-zinc-300 dark:border-zinc-700">
+            {/* タイマー設定 */}
             <div>
               <label class="block text-sm font-semibold text-black dark:text-white mb-1">
-                {t('wait_max_plays')}
+                {t('wait_timer_label')}
               </label>
-              <select
-                value={maxPlays()}
-                onChange={(e) => {
-                  const value = parseInt(e.currentTarget.value, 10);
-                  setMaxPlays(value);
-                  localStorage.setItem('maxPlays', String(value));
-                }}
-                class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
-              >
-                <For each={Array.from({ length: 100 }, (_, i) => i + 1)}>
-                  {(n) => <option value={n}>{n}</option>}
-                </For>
-              </select>
+              <div class="flex gap-2">
+                <select
+                  value={minute()}
+                  onChange={(e) => {
+                    const m = parseInt(e.currentTarget.value);
+                    setMinute(m);
+                    updateDuration(m, second());
+                  }}
+                  class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+                >
+                  <For each={[...Array(61).keys()]}>
+                    {(v) => <option value={v}>{v} {t('minutes')}</option>}
+                  </For>
+                </select>
+                <select
+                  value={second()}
+                  onChange={(e) => {
+                    const s = parseInt(e.currentTarget.value);
+                    setSecond(s);
+                    updateDuration(minute(), s);
+                  }}
+                  class="w-1/2 px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+                >
+                  <For each={[...Array(61).keys()]}>
+                    {(v) => (
+                      <option
+                        value={v}
+                        disabled={minute() === 0 && v === 0}
+                      >
+                        {v} {t('seconds')}
+                      </option>
+                    )}
+                  </For>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label class="inline-flex items-center gap-2 mb-2 text-sm text-black dark:text-white">
+            {/* 再生枚数＋カウントダウン */}
+            <div class="grid grid-cols-2 sm:grid-cols-1 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-black dark:text-white mb-1">
+                  {t('wait_max_plays')}
+                </label>
+                <select
+                  value={maxPlays()}
+                  onChange={(e) => {
+                    const value = parseInt(e.currentTarget.value, 10);
+                    setMaxPlays(value);
+                    localStorage.setItem('maxPlays', String(value));
+                  }}
+                  class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+                >
+                  <For each={Array.from({ length: 100 }, (_, i) => i + 1)}>
+                    {(n) => <option value={n}>{n}</option>}
+                  </For>
+                </select>
+              </div>
+
+              <div>
+                <label class="inline-flex items-center gap-2 mb-2 text-sm text-black dark:text-white">
+                  <input
+                    type="checkbox"
+                    checked={countdownEnabled()}
+                    onChange={(e) => {
+                      const value = e.currentTarget.checked;
+                      setCountdownEnabled(value);
+                      localStorage.setItem('countdownEnabled', String(value));
+                    }}
+                  />
+                  {t('wait_countdown_label')}
+                </label>
+                <select
+                  value={countdownSeconds()}
+                  onChange={(e) => {
+                    const value = parseInt(e.currentTarget.value, 10);
+                    setCountdownSeconds(value);
+                    localStorage.setItem('countdownSeconds', String(value));
+                  }}
+                  class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
+                >
+                  <For each={Array.from({ length: 8 }, (_, i) => i + 3)}>
+                    {(n) => <option value={n}>{n} {t('seconds')}</option>}
+                  </For>
+                </select>
+              </div>
+            </div>
+
+            {/* チェックボックス設定 */}
+            <div class="grid grid-cols-2 gap-2 pt-2 text-sm text-black dark:text-white">
+              <label class="inline-flex items-center gap-2">
                 <input
                   type="checkbox"
-                  checked={countdownEnabled()}
+                  checked={shuffle()}
                   onChange={(e) => {
-                    const value = e.currentTarget.checked;
-                    setCountdownEnabled(value);
-                    localStorage.setItem('countdownEnabled', String(value));
+                    setShuffle(e.currentTarget.checked);
+                    localStorage.setItem('shuffle', String(e.currentTarget.checked));
                   }}
                 />
-                {t('wait_countdown_label')}
+                {t('wait_enable_shuffle')}
               </label>
-              <select
-                value={countdownSeconds()}
-                onChange={(e) => {
-                  const value = parseInt(e.currentTarget.value, 10);
-                  setCountdownSeconds(value);
-                  localStorage.setItem('countdownSeconds', String(value));
-                }}
-                class="w-full px-2 py-1 rounded border bg-white dark:bg-zinc-800 text-black dark:text-white"
-              >
-                <For each={Array.from({ length: 8 }, (_, i) => i + 3)}>
-                  {(n) => <option value={n}>{n} {t('seconds')}</option>}
-                </For>
-              </select>
+
+              <label class="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={keyboardEnabled()}
+                  onChange={(e) => {
+                    setKeyboardEnabled(e.currentTarget.checked);
+                    localStorage.setItem('keyboardEnabled', String(e.currentTarget.checked));
+                  }}
+                />
+                {t('wait_enable_keyboard')}
+              </label>
+
+              <label class="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={tapEnabled()}
+                  onChange={(e) => {
+                    setTapEnabled(e.currentTarget.checked);
+                    localStorage.setItem('tapEnabled', String(e.currentTarget.checked));
+                  }}
+                />
+                {t('wait_enable_tap')}
+              </label>
+
+              <label class="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={chimeEnabled()}
+                  onChange={(e) => {
+                    const value = e.currentTarget.checked;
+                    setChimeEnabled(value);
+                    localStorage.setItem('chimeEnabled', String(value));
+                  }}
+                />
+                {t('wait_chime_label')}
+              </label>
             </div>
-          </div>
 
-          {/* チェックボックス設定 */}
-          <div class="grid grid-cols-2 gap-2 pt-2 text-sm text-black dark:text-white">
-            <label class="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={shuffle()}
-                onChange={(e) => {
-                  setShuffle(e.currentTarget.checked);
-                  localStorage.setItem('shuffle', String(e.currentTarget.checked));
-                }}
-              />
-              {t('wait_enable_shuffle')}
-            </label>
-
-            <label class="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={keyboardEnabled()}
-                onChange={(e) => {
-                  setKeyboardEnabled(e.currentTarget.checked);
-                  localStorage.setItem('keyboardEnabled', String(e.currentTarget.checked));
-                }}
-              />
-              {t('wait_enable_keyboard')}
-            </label>
-
-            <label class="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={tapEnabled()}
-                onChange={(e) => {
-                  setTapEnabled(e.currentTarget.checked);
-                  localStorage.setItem('tapEnabled', String(e.currentTarget.checked));
-                }}
-              />
-              {t('wait_enable_tap')}
-            </label>
-
-            <label class="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={chimeEnabled()}
-                onChange={(e) => {
-                  const value = e.currentTarget.checked;
-                  setChimeEnabled(value);
-                  localStorage.setItem('chimeEnabled', String(value));
-                }}
-              />
-              {t('wait_chime_label')}
-            </label>
-          </div>
-
-          {/* ボタン類 */}
-          <div class="pt-4">
-            <div class="flex flex-col gap-y-2">
-              <button
-                class="bg-zinc-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-zinc-700 transition"
-                onClick={props.onOpenLoadModal}
-              >
-                {t('load_title')}
-              </button>
-              <button
-                class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-green-700 transition"
-                onClick={props.onToggleCategoryPanel}
-              >
-                {t('wait_select_category_button')}
-              </button>
-              <button
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-blue-700 transition"
-                onClick={handleStart}
-              >
-                ▶ {t('play')}
-              </button>
+            {/* ボタン類 */}
+            <div class="pt-4">
+              <div class="flex flex-col gap-y-2">
+                <button
+                  class="bg-zinc-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-zinc-700 transition"
+                  onClick={props.onOpenLoadModal}
+                >
+                  {t('load_title')}
+                </button>
+                <button
+                  class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-green-700 transition"
+                  onClick={props.onToggleCategoryPanel}
+                >
+                  {t('wait_select_category_button')}
+                </button>
+                <button
+                  class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold w-full hover:bg-blue-700 transition"
+                  onClick={handleStart}
+                >
+                  ▶ {t('play')}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* 右：カテゴリ一覧 */}
-      <div class="w-full sm:w-1/2 h-full">
-        <div class="px-2 sm:px-0">
-          <input
-            type="text"
-            class="w-full px-3 py-2 rounded border bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white mb-4"
-            placeholder={t('category_panel_search_placeholder')}
-            value={search()}
-            onInput={(e) => setSearch(e.currentTarget.value)}
-          />
+        {/* 右：カテゴリ一覧 */}
+        <div class="w-full sm:w-1/2 h-full">
+          <div class="px-2 sm:px-0">
+            <input
+              type="text"
+              class="w-full px-3 py-2 rounded border bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white mb-4"
+              placeholder={t('category_panel_search_placeholder')}
+              value={search()}
+              onInput={(e) => setSearch(e.currentTarget.value)}
+            />
 
-          <div class="space-y-6">
-            {/* 📌 ピン付き */}
-            <Show when={pinned().length > 0}>
+            <div class="space-y-6">
+              {/* 📌 ピン付き */}
+              <Show when={pinned().length > 0}>
+                <div>
+                  <div class="text-black dark:text-white font-semibold mb-2">📌 {t('category_panel_pin')}</div>
+                  <div class="space-y-1">
+                    <For each={pinned()}>
+                      {(name) => (
+                        <div
+                          class={`flex items-center justify-between px-2 py-2 rounded transition-colors ${panelSelectedCategories().includes(name)
+                            ? 'bg-blue-50 dark:bg-blue-900'
+                            : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                          onClick={() => toggleSelect(name)}
+                        >
+                          <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={panelSelectedCategories().includes(name)}
+                              readOnly
+                            />
+                            <span class="truncate">{name}（{get()[name]?.length || 0}）</span>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePin(name);
+                            }}
+                            class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
+                            title={t('category_panel_pin')}
+                          >
+                            {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
+                          </button>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+                </div>
+              </Show>
+
+              {/* 📂 ピンなし */}
               <div>
-                <div class="text-black dark:text-white font-semibold mb-2">📌 {t('category_panel_pin')}</div>
+                <div class="text-black dark:text-white font-semibold mb-2">📂 {t('category_panel_title')}</div>
                 <div class="space-y-1">
-                  <For each={pinned()}>
+                  <For each={unpinned()}>
                     {(name) => (
                       <div
                         class={`flex items-center justify-between px-2 py-2 rounded transition-colors ${panelSelectedCategories().includes(name)
@@ -337,45 +382,14 @@ export default function WaitPanel(props: Props) {
                   </For>
                 </div>
               </div>
-            </Show>
-
-            {/* 📂 ピンなし */}
-            <div>
-              <div class="text-black dark:text-white font-semibold mb-2">📂 {t('category_panel_title')}</div>
-              <div class="space-y-1">
-                <For each={unpinned()}>
-                  {(name) => (
-                    <div
-                      class={`flex items-center justify-between px-2 py-2 rounded transition-colors ${panelSelectedCategories().includes(name)
-                        ? 'bg-blue-50 dark:bg-blue-900'
-                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-                      onClick={() => toggleSelect(name)}
-                    >
-                      <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={panelSelectedCategories().includes(name)}
-                          readOnly
-                        />
-                        <span class="truncate">{name}（{get()[name]?.length || 0}）</span>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          togglePin(name);
-                        }}
-                        class={`ml-2 p-2 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 ${pinnedCategories().includes(name) ? 'text-red-500' : 'text-gray-400'}`}
-                        title={t('category_panel_pin')}
-                      >
-                        {pinnedCategories().includes(name) ? <Pin size={16} /> : <PinOff size={16} />}
-                      </button>
-                    </div>
-                  )}
-                </For>
-              </div>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 右レール（デスクトップのみ表示） */}
+      <div class="hidden lg:block fixed right-0 top-20">
+        <AdRail />
       </div>
     </div>
   );
